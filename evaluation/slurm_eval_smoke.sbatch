@@ -5,7 +5,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --constraint=gpu80
 #SBATCH --cpus-per-task=8
-#SBATCH --time=12:00:00
+#SBATCH --time=06:00:00
 #SBATCH --output=logs/eval_smoke-%j.out
 #SBATCH --error=logs/eval_smoke-%j.err
 
