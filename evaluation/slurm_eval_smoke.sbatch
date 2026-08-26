@@ -10,12 +10,13 @@
 #SBATCH --error=logs/eval_smoke-%j.err
 
 set -euo pipefail
-cd "${SLURM_SUBMIT_DIR:?}"
+ROOT="${SLURM_SUBMIT_DIR:?}"
+cd "$ROOT/AIDoubleAgentDefenders"
 source /apps/anaconda/anaconda-2024.10/etc/profile.d/conda.sh
 conda activate /home/ad906660/.conda/envs/tom
 mkdir -p logs results/evaluations/smoke
 
-export RESULTS_DIR="${RESULTS_DIR:-$PWD/results/evaluations/smoke}"
+export RESULTS_DIR="${RESULTS_DIR:-$ROOT/results/evaluations/smoke}"
 export AZURE_OPENAI_ENDPOINT="${AZURE_OPENAI_ENDPOINT:-unused}"
 export WANDB_MODE="offline"
 export TOKENIZERS_PARALLELISM=false

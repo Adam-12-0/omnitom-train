@@ -2,7 +2,7 @@
 #SBATCH --job-name=omni-attacker
 #SBATCH --account=ai
 #SBATCH --partition=highgpu,normal
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:2
 #SBATCH --constraint=gpu80
 #SBATCH --cpus-per-task=8
 #SBATCH --time=12:00:00
@@ -28,7 +28,7 @@ exec python -m vllm.entrypoints.openai.api_server \
   --model "$MODEL_ID" \
   --served-model-name "$MODEL_ID" \
   --host 0.0.0.0 --port "$PORT" \
-  --tensor-parallel-size 1 \
+  --tensor-parallel-size 2 \
   --dtype bfloat16 \
   --max-model-len 32768 \
   --gpu-memory-utilization 0.90 \
