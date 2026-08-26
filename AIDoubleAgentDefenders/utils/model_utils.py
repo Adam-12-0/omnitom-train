@@ -18,6 +18,7 @@ model_loadstring_dict = {
     "Meta-Llama-3-8B-Instruct": "meta-llama", 
     "Meta-Llama-3-8B": "meta-llama", 
     "Mistral-7B-v0.3": "mistralai", 
+    "Mistral-Large-Instruct-2407": "mistralai",
     "Ministral-3-14B-Instruct-2512-BF16": "mistralai",
     "Meta-Llama-3-70B-Instruct": "meta-llama",
     "gemma-3-12b-it": "google",
