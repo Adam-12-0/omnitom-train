@@ -9,7 +9,7 @@ TrainingConfig:
   loss_type: "dr_grpo"
 ModelConfig:
   engine: "Qwen3-14B_tom_only_lora_model"
-  checkpoints_dir: "/home/ad906660/omnitom_da_experiment/results/checkpoints"
+  checkpoints_dir: "../results/checkpoints"
   judge_model: "mistralai/Mistral-Large-Instruct-2407"
   attacker_model: "meta-llama/Llama-3.3-70B-Instruct"
   attacker_type: "verifying_attacker_swapable_prompt"

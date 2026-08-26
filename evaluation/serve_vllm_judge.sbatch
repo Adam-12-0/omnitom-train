@@ -40,6 +40,6 @@ exec python -m vllm.entrypoints.openai.api_server \
   --quantization bitsandbytes \
   --load-format bitsandbytes \
   --dtype bfloat16 \
-  --max-model-len 32768 \
+  --max-model-len 8192 \
   --gpu-memory-utilization 0.90 \
   --trust-remote-code

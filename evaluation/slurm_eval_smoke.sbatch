@@ -19,6 +19,8 @@ mkdir -p logs results/evaluations/smoke
 export RESULTS_DIR="${RESULTS_DIR:-$ROOT/results/evaluations/smoke}"
 export AZURE_OPENAI_ENDPOINT="${AZURE_OPENAI_ENDPOINT:-unused}"
 export WANDB_MODE="offline"
+export SHELLS_LAUNCHER_LOG_NAME="omnitom_eval_smoke_${SLURM_JOB_ID}"
+export WANDB_PROJECT="omnitom-open-eval"
 export TOKENIZERS_PARALLELISM=false
 
 if [[ -z "${ATTACKER_ENDPOINT:-}" || -z "${JUDGE_ENDPOINT:-}" ]]; then
