@@ -357,6 +357,9 @@ def main(args):
         eval_dataset = eval_dataset.select(range(min(10, len(eval_dataset))))
         args.n_evals = 2
         print(f"Testing mode: reduced to {len(train_dataset)} train examples, {len(eval_dataset)} eval examples, and {args.n_evals} evals")
+    if args.eval_limit > 0:
+        eval_dataset = eval_dataset.select(range(min(args.eval_limit, len(eval_dataset))))
+        print(f"Evaluation limit: reduced to {len(eval_dataset)} examples")
 
     total_train_trajectories = args.epochs * len(train_dataset)
     if args.n_evals < 0:
@@ -664,6 +667,8 @@ if __name__ == "__main__":
                         help="Number of eval jobs (datapoint x prompt combinations) to run in parallel via ThreadPoolExecutor")
     parser.add_argument("--testing", action="store_true",
                         help="Truncate dataset to 10 samples for quick testing")
+    parser.add_argument("--eval_limit", type=int, default=0,
+                        help="If positive, cap the evaluation dataset to this many examples")
     parser.add_argument("--n_evals", type=int, default=1,
                         help="Number of eval passes over eval dataset during training (includes final eval after all trajectories)")
     parser.add_argument("--stack_new_adapter", action="store_true",

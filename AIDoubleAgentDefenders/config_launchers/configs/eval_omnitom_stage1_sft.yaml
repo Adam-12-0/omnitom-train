@@ -8,6 +8,8 @@ DatasetConfig:
 RunConfig:
   eval_only: true
   do_run_first_eval: true
+TrainingConfig:
+  loss_type: "dr_grpo"
 ModelConfig:
   engine: "omnitom_stage1_sft_qwen3_14b"
   checkpoints_dir: "/home/ad906660/omnitom_da_experiment/results/checkpoints"
