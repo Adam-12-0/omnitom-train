@@ -1,0 +1,26 @@
+# OmniToM replication dependencies.
+# Python 3.10+ is recommended. The mock backend uses only the standard library.
+
+# Open-weight Hugging Face backend.
+torch>=2.1
+transformers>=4.45
+accelerate>=0.33
+huggingface-hub>=0.24
+safetensors>=0.4
+tokenizers>=0.19
+sentencepiece>=0.2
+protobuf>=4.25
+
+# Required only when using --load-in-4bit on CUDA/Linux machines.
+bitsandbytes>=0.43; platform_system == "Linux"
+
+# Closed-source/API backends.
+openai>=2.0.0
+google-genai>=1.30.0
+
+# Useful for result inspection and downstream analysis.
+numpy>=1.26
+pandas>=2.0
+tqdm>=4.66
+openpyxl>=3.1
+python-dotenv>=1.0

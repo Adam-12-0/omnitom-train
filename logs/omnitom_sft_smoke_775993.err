@@ -1,0 +1,20 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/443 [00:00<?, ?it/s]Loading weights:   5%|▌         | 24/443 [00:00<00:02, 196.75it/s]Loading weights:  10%|▉         | 44/443 [00:00<00:02, 193.97it/s]Loading weights:  43%|████▎     | 192/443 [00:00<00:00, 729.49it/s]Loading weights:  60%|██████    | 267/443 [00:01<00:00, 200.15it/s]Loading weights:  71%|███████▏  | 316/443 [00:01<00:00, 167.91it/s]Loading weights:  79%|███████▉  | 352/443 [00:01<00:00, 153.21it/s]Loading weights:  86%|████████▌ | 380/443 [00:02<00:00, 139.29it/s]Loading weights:  91%|█████████ | 402/443 [00:02<00:00, 148.14it/s]Loading weights: 100%|██████████| 443/443 [00:02<00:00, 193.87it/s]
+Adding EOS to train dataset:   0%|          | 0/3 [00:00<?, ? examples/s]Adding EOS to train dataset: 100%|██████████| 3/3 [00:00<00:00, 95.78 examples/s]
+Tokenizing train dataset:   0%|          | 0/3 [00:00<?, ? examples/s]Tokenizing train dataset: 100%|██████████| 3/3 [00:00<00:00, 73.21 examples/s]
+Building labels for train dataset:   0%|          | 0/3 [00:00<?, ? examples/s]Building labels for train dataset: 100%|██████████| 3/3 [00:00<00:00, 1414.13 examples/s]
+Truncating train dataset:   0%|          | 0/3 [00:00<?, ? examples/s]Truncating train dataset: 100%|██████████| 3/3 [00:00<00:00, 1754.69 examples/s]
+Dropping fully masked examples from train dataset:   0%|          | 0/3 [00:00<?, ? examples/s]Dropping fully masked examples from train dataset: 100%|██████████| 3/3 [00:00<00:00, 2840.39 examples/s]
+Adding EOS to eval dataset:   0%|          | 0/1 [00:00<?, ? examples/s]Adding EOS to eval dataset: 100%|██████████| 1/1 [00:00<00:00, 1249.42 examples/s]
+Tokenizing eval dataset:   0%|          | 0/1 [00:00<?, ? examples/s]Tokenizing eval dataset: 100%|██████████| 1/1 [00:00<00:00, 268.78 examples/s]
+Building labels for eval dataset:   0%|          | 0/1 [00:00<?, ? examples/s]Building labels for eval dataset: 100%|██████████| 1/1 [00:00<00:00, 594.26 examples/s]
+Truncating eval dataset:   0%|          | 0/1 [00:00<?, ? examples/s]Truncating eval dataset: 100%|██████████| 1/1 [00:00<00:00, 659.27 examples/s]
+Dropping fully masked examples from eval dataset:   0%|          | 0/1 [00:00<?, ? examples/s]Dropping fully masked examples from eval dataset: 100%|██████████| 1/1 [00:00<00:00, 986.20 examples/s]
+[RANK 0] Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+[transformers] The tokenizer has new PAD/BOS/EOS tokens that differ from the model config and generation config. The model config and generation config were aligned accordingly, being updated with the tokenizer's values. Updated tokens: {'bos_token_id': None, 'pad_token_id': 151643}.
+  0%|          | 0/2 [00:00<?, ?it/s] 50%|█████     | 1/2 [00:12<00:12, 12.07s/it]                                              50%|█████     | 1/2 [00:12<00:12, 12.07s/it]100%|██████████| 2/2 [00:12<00:00,  5.48s/it]                                             100%|██████████| 2/2 [00:12<00:00,  5.48s/it]
+  0%|          | 0/1 [00:00<?, ?it/s][A                                             
+                                     [A100%|██████████| 2/2 [00:13<00:00,  5.48s/it]
+100%|██████████| 1/1 [00:00<00:00, 707.54it/s][A
+                                              [A                                             100%|██████████| 2/2 [00:15<00:00,  5.48s/it]100%|██████████| 2/2 [00:15<00:00,  7.89s/it]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 1423.25it/s]

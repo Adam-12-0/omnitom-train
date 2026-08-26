@@ -1,0 +1,43 @@
+# Credentials and local environments
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.cache/
+.huggingface/
+.repo-git/
+**/.git-upstream/
+
+# Private benchmark records and derived prompt/label data
+omnitom-benchmark-review/benchmark_story_belief_labels.jsonl
+data/omnitom_stage1_sft/
+data/omnitom_stage1_sft_smoke/
+data/tiny_omnitom_stage1_sft/
+
+# Generated logs: publish only the selected logs explicitly
+logs/*
+!logs/omnitom_sft_775995.out
+!logs/omnitom_sft_775995.err
+!logs/omnitom_sft_smoke_775993.out
+!logs/omnitom_sft_smoke_775993.err
+*.log
+
+# Training intermediates and duplicate smoke/checkpoint trees
+results/checkpoints/*
+!results/checkpoints/omnitom_stage1_sft_qwen3_14b/
+results/checkpoints/omnitom_stage1_sft_qwen3_14b/*
+!results/checkpoints/omnitom_stage1_sft_qwen3_14b/adapter_config.json
+!results/checkpoints/omnitom_stage1_sft_qwen3_14b/adapter_model.safetensors
+!results/checkpoints/omnitom_stage1_sft_qwen3_14b/README.md
+!results/checkpoints/omnitom_stage1_sft_qwen3_14b/chat_template.jinja
+!results/checkpoints/omnitom_stage1_sft_qwen3_14b/tokenizer.json
+!results/checkpoints/omnitom_stage1_sft_qwen3_14b/tokenizer_config.json
+!results/checkpoints/omnitom_stage1_sft_qwen3_14b/training_provenance.json
+results/checkpoints/omnitom_stage1_sft_qwen3_14b_smoke/
+
+# Keep repository history manageable; adapter_model.safetensors is tracked by LFS.
+results/**/*.pt
+results/**/*.pth

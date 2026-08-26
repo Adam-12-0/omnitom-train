@@ -1,0 +1,67 @@
+{
+  "source": "/lustre/fs1/home/ad906660/omnitom_da_experiment/omnitom-benchmark-review/benchmark_story_belief_labels.jsonl",
+  "seed": 42,
+  "validation_fraction": 0.1,
+  "smoke": true,
+  "train_examples": 3,
+  "validation_examples": 1,
+  "format": "messages: system + existing OmniToM Stage 1 extraction prompt + assistant Actor | Belief | Order table",
+  "excluded": [
+    "Stage 2 schema labels",
+    "LLM judge",
+    "GRPO"
+  ]
+}
+{'loss': '1.72', 'grad_norm': '1.334', 'learning_rate': '2e-05', 'entropy': '0.7334', 'num_tokens': '1833', 'mean_token_accuracy': '0.7152', 'epoch': '1'}
+{'loss': '1.705', 'grad_norm': '1.337', 'learning_rate': '1e-05', 'entropy': '0.7375', 'num_tokens': '3666', 'mean_token_accuracy': '0.713', 'epoch': '2'}
+{'eval_loss': '1.146', 'eval_runtime': '0.2262', 'eval_samples_per_second': '4.421', 'eval_steps_per_second': '4.421', 'eval_entropy': '0.5462', 'eval_num_tokens': '3666', 'eval_mean_token_accuracy': '0.7741', 'epoch': '2'}
+{'train_runtime': '15.85', 'train_samples_per_second': '2.019', 'train_steps_per_second': '0.126', 'train_loss': '1.712', 'epoch': '2'}
+{
+  "base_model_id": "Qwen/Qwen3-14B",
+  "omnitom_commit": "2a4da07b55165bf4ec1a199287c0c0ac1dc90009",
+  "defender_commit": "0f1ad2d336d9986eed736a7aa458275beb1535fc",
+  "seed": 42,
+  "learning_rate": 2e-05,
+  "epochs": 3,
+  "optimizer": "AdamW",
+  "lora_rank": 32,
+  "lora_alpha": 64,
+  "lora_dropout": 0.0,
+  "target_modules": [
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj",
+    "gate_proj",
+    "up_proj",
+    "down_proj"
+  ],
+  "bf16": true,
+  "gradient_checkpointing": true,
+  "max_sequence_length": 8192,
+  "per_device_batch_size": 1,
+  "gradient_accumulation_steps": 16,
+  "effective_batch_size": 16,
+  "slurm_job_id": "775993",
+  "gpu_type": "NVIDIA H100 80GB HBM3 (nvidia_h100_80gb_hbm3)",
+  "memory_note": "bf16 configuration preserved; normal partition 15.77 GiB GPU OOMed, so jobs use highgpu NVIDIA H100 80GB HBM3. No training hyperparameters changed.",
+  "host": "evc101",
+  "runtime_seconds": 17.57,
+  "final_adapter_path": "/lustre/fs1/home/ad906660/omnitom_da_experiment/results/checkpoints/omnitom_stage1_sft_qwen3_14b_smoke",
+  "metrics": {
+    "train_runtime": 15.8519,
+    "train_samples_per_second": 2.019,
+    "train_steps_per_second": 0.126,
+    "total_flos": 310558124298240.0,
+    "train_loss": 1.712171196937561,
+    "epoch": 2.0,
+    "validation_eval_loss": 1.1458570957183838,
+    "validation_eval_runtime": 0.2376,
+    "validation_eval_samples_per_second": 4.209,
+    "validation_eval_steps_per_second": 4.209,
+    "validation_eval_entropy": 0.5461999177932739,
+    "validation_eval_num_tokens": 3666.0,
+    "validation_eval_mean_token_accuracy": 0.7740740776062012,
+    "validation_epoch": 2.0
+  }
+}

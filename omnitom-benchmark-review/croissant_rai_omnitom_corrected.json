@@ -1,0 +1,485 @@
+{
+  "@context": {
+    "@language": "en",
+    "@vocab": "https://schema.org/",
+    "arrayShape": "cr:arrayShape",
+    "citeAs": "cr:citeAs",
+    "column": "cr:column",
+    "conformsTo": "dct:conformsTo",
+    "containedIn": "cr:containedIn",
+    "cr": "http://mlcommons.org/croissant/",
+    "data": {
+      "@id": "cr:data",
+      "@type": "@json"
+    },
+    "dataBiases": "cr:dataBiases",
+    "dataCollection": "cr:dataCollection",
+    "dataType": {
+      "@id": "cr:dataType",
+      "@type": "@vocab"
+    },
+    "dct": "http://purl.org/dc/terms/",
+    "extract": "cr:extract",
+    "field": "cr:field",
+    "fileProperty": "cr:fileProperty",
+    "fileObject": "cr:fileObject",
+    "fileSet": "cr:fileSet",
+    "format": "cr:format",
+    "includes": "cr:includes",
+    "isArray": "cr:isArray",
+    "isLiveDataset": "cr:isLiveDataset",
+    "jsonPath": "cr:jsonPath",
+    "key": "cr:key",
+    "md5": "cr:md5",
+    "parentField": "cr:parentField",
+    "path": "cr:path",
+    "personalSensitiveInformation": "cr:personalSensitiveInformation",
+    "recordSet": "cr:recordSet",
+    "references": "cr:references",
+    "regex": "cr:regex",
+    "repeated": "cr:repeated",
+    "replace": "cr:replace",
+    "sc": "https://schema.org/",
+    "separator": "cr:separator",
+    "source": "cr:source",
+    "subField": "cr:subField",
+    "transform": "cr:transform",
+    "rai": "http://mlcommons.org/croissant/RAI/",
+    "prov": "http://www.w3.org/ns/prov#"
+  },
+  "@type": "sc:Dataset",
+  "distribution": [
+    {
+      "@type": "cr:FileObject",
+      "@id": "repo",
+      "name": "repo",
+      "description": "The Hugging Face git repository.",
+      "contentUrl": "https://huggingface.co/datasets/omnitom/omnitom-benchmark-review/tree/refs%2Fconvert%2Fparquet",
+      "encodingFormat": "git+https",
+      "sha256": "https://github.com/mlcommons/croissant/issues/80"
+    },
+    {
+      "@type": "cr:FileSet",
+      "@id": "parquet-files-for-config-default",
+      "containedIn": {
+        "@id": "repo"
+      },
+      "encodingFormat": "application/x-parquet",
+      "includes": "default/*/*.parquet"
+    }
+  ],
+  "recordSet": [
+    {
+      "@type": "cr:RecordSet",
+      "dataType": "cr:Split",
+      "key": {
+        "@id": "default_splits/split_name"
+      },
+      "@id": "default_splits",
+      "name": "default_splits",
+      "description": "Splits for the default config. The released benchmark split is exposed as the Hugging Face default train split for compatibility with the dataset viewer.",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "default_splits/split_name",
+          "dataType": "sc:Text"
+        }
+      ],
+      "data": [
+        {
+          "default_splits/split_name": "train"
+        }
+      ]
+    },
+    {
+      "@type": "cr:RecordSet",
+      "@id": "default",
+      "description": "OmniToM benchmark split exposed through the Hugging Face 'default/train' converted Parquet view. Each record is one story with a list of belief propositions and schema labels.",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "default/split",
+          "dataType": "sc:Text",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-files-for-config-default"
+            },
+            "extract": {
+              "fileProperty": "fullpath"
+            },
+            "transform": {
+              "regex": "default/(?:partial-)?(train)/.+parquet$"
+            }
+          },
+          "references": {
+            "field": {
+              "@id": "default_splits/split_name"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "default/story_id",
+          "dataType": "cr:Int64",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-files-for-config-default"
+            },
+            "extract": {
+              "column": "story_id"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "default/story_category",
+          "dataType": "sc:Text",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-files-for-config-default"
+            },
+            "extract": {
+              "column": "story_category"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "default/story",
+          "dataType": "sc:Text",
+          "source": {
+            "fileSet": {
+              "@id": "parquet-files-for-config-default"
+            },
+            "extract": {
+              "column": "story"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "default/beliefs",
+          "subField": [
+            {
+              "@type": "cr:Field",
+              "@id": "default/beliefs/actor",
+              "dataType": "sc:Text",
+              "source": {
+                "fileSet": {
+                  "@id": "parquet-files-for-config-default"
+                },
+                "extract": {
+                  "column": "beliefs"
+                },
+                "transform": {
+                  "jsonPath": "actor"
+                }
+              }
+            },
+            {
+              "@type": "cr:Field",
+              "@id": "default/beliefs/belief",
+              "dataType": "sc:Text",
+              "source": {
+                "fileSet": {
+                  "@id": "parquet-files-for-config-default"
+                },
+                "extract": {
+                  "column": "beliefs"
+                },
+                "transform": {
+                  "jsonPath": "belief"
+                }
+              }
+            },
+            {
+              "@type": "cr:Field",
+              "@id": "default/beliefs/labels",
+              "subField": [
+                {
+                  "@type": "cr:Field",
+                  "@id": "default/beliefs/labels/order",
+                  "dataType": "sc:Text",
+                  "source": {
+                    "fileSet": {
+                      "@id": "parquet-files-for-config-default"
+                    },
+                    "extract": {
+                      "column": "beliefs"
+                    },
+                    "transform": [
+                      {
+                        "jsonPath": "labels"
+                      },
+                      {
+                        "jsonPath": "order"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "@type": "cr:Field",
+                  "@id": "default/beliefs/labels/truth_status",
+                  "dataType": "sc:Text",
+                  "source": {
+                    "fileSet": {
+                      "@id": "parquet-files-for-config-default"
+                    },
+                    "extract": {
+                      "column": "beliefs"
+                    },
+                    "transform": [
+                      {
+                        "jsonPath": "labels"
+                      },
+                      {
+                        "jsonPath": "truth_status"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "@type": "cr:Field",
+                  "@id": "default/beliefs/labels/knowledge_access",
+                  "dataType": "sc:Text",
+                  "source": {
+                    "fileSet": {
+                      "@id": "parquet-files-for-config-default"
+                    },
+                    "extract": {
+                      "column": "beliefs"
+                    },
+                    "transform": [
+                      {
+                        "jsonPath": "labels"
+                      },
+                      {
+                        "jsonPath": "knowledge_access"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "@type": "cr:Field",
+                  "@id": "default/beliefs/labels/representation",
+                  "dataType": "sc:Text",
+                  "source": {
+                    "fileSet": {
+                      "@id": "parquet-files-for-config-default"
+                    },
+                    "extract": {
+                      "column": "beliefs"
+                    },
+                    "transform": [
+                      {
+                        "jsonPath": "labels"
+                      },
+                      {
+                        "jsonPath": "representation"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "@type": "cr:Field",
+                  "@id": "default/beliefs/labels/content_type",
+                  "dataType": "sc:Text",
+                  "source": {
+                    "fileSet": {
+                      "@id": "parquet-files-for-config-default"
+                    },
+                    "extract": {
+                      "column": "beliefs"
+                    },
+                    "transform": [
+                      {
+                        "jsonPath": "labels"
+                      },
+                      {
+                        "jsonPath": "content_type"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "@type": "cr:Field",
+                  "@id": "default/beliefs/labels/mental_source",
+                  "dataType": "sc:Text",
+                  "source": {
+                    "fileSet": {
+                      "@id": "parquet-files-for-config-default"
+                    },
+                    "extract": {
+                      "column": "beliefs"
+                    },
+                    "transform": [
+                      {
+                        "jsonPath": "labels"
+                      },
+                      {
+                        "jsonPath": "mental_source"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "@type": "cr:Field",
+                  "@id": "default/beliefs/labels/context",
+                  "dataType": "sc:Text",
+                  "source": {
+                    "fileSet": {
+                      "@id": "parquet-files-for-config-default"
+                    },
+                    "extract": {
+                      "column": "beliefs"
+                    },
+                    "transform": [
+                      {
+                        "jsonPath": "labels"
+                      },
+                      {
+                        "jsonPath": "context"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "isArray": true,
+          "arrayShape": "-1"
+        }
+      ]
+    }
+  ],
+  "conformsTo": "http://mlcommons.org/croissant/1.1",
+  "name": "omnitom-benchmark-review",
+  "description": "OmniToM is a benchmark for evaluating Theory of Mind in language models through explicit belief-structure modeling. Each example is a short English social-reasoning story paired with actor-centered belief propositions and seven closed-set schema labels. The release contains the 895-story benchmark split with 22,343 labeled belief propositions.",
+  "alternateName": [
+    "OmniToM",
+    "omnitom/omnitom-benchmark-review"
+  ],
+  "creator": {
+    "@type": "Organization",
+    "name": "Anonymous OmniToM authors",
+    "url": "https://huggingface.co/omnitom"
+  },
+  "keywords": [
+    "text-generation",
+    "text-classification",
+    "text2text-generation",
+    "multi-class-classification",
+    "English",
+    "mit",
+    "n<1K",
+    "theory-of-mind",
+    "benchmark",
+    "social-reasoning",
+    "belief-modeling",
+    "llm-evaluation",
+    "cognitive-reasoning",
+    "mental-state-representation"
+  ],
+  "license": "https://spdx.org/licenses/MIT.html",
+  "url": "https://huggingface.co/datasets/omnitom/omnitom-benchmark-review",
+  "rai:dataLimitations": [
+    "OmniToM is limited to English, text-only, short, self-contained Theory-of-Mind stories from seven retained ToMBench categories. It does not evaluate embodied, interactive, multimodal, long-horizon, or high-stakes social reasoning, and it should not be used as evidence of deployment-ready interpersonal reasoning or agent safety.",
+    "The benchmark contains 895 stories and 22,343 belief propositions. The retained categories and short-story format bound the phenomena covered and exclude other forms of social reasoning.",
+    "The belief structures and labels were produced by a human-calibrated LLM-assisted annotation pipeline rather than by exhaustive fully manual annotation of every released story. The seven-dimensional schema is human-labeled and may retain interpretive subjectivity in socially ambiguous cases, though the closed label space, three-annotator verification, majority voting, and expert adjudication reduce this risk.",
+    "Stage 1 belief-extraction evaluation in the accompanying paper uses a human-calibrated semantic judge rather than exhaustive human adjudication over the full benchmark. The selected judge reached 72.03% agreement with human semantic-alignment decisions, so extraction F1 should be interpreted as an approximate aggregate metric rather than an exact belief-level alignment score.",
+    "Recommended use is benchmark evaluation and diagnostic analysis. Out-of-scope uses include safety certification, clinical or educational assessment of social cognition, measurement of real-world social intelligence, profiling or decision-making about people, and treating the benchmark as a complete coverage test for all Theory-of-Mind phenomena."
+  ],
+  "rai:dataBiases": [
+    "The source stories are inherited from ToMBench, so OmniToM inherits the representational biases, writing conventions, topical coverage limits, and scenario distribution of that upstream corpus.",
+    "The benchmark retains only seven story categories judged to provide sufficiently self-contained mental-state evidence. This creates selection bias toward short, benchmark-style social-reasoning narratives and away from dialogue, multimodal evidence, culturally variable interaction patterns, and more open-ended real-world contexts.",
+    "Names, roles, cultures, social situations, pragmatic conventions, and story categories may be unevenly represented. Model performance may therefore reflect familiarity with those narrative conventions rather than general Theory-of-Mind competence across populations or contexts.",
+    "Annotations were created with LLM assistance and human calibration. Although the pipeline was calibrated and audited, the annotation model and semantic judge may introduce model-specific biases, especially in implicit pragmatic inference, shared-knowledge judgments, and higher-order belief attribution."
+  ],
+  "rai:personalSensitiveInformation": "The dataset is not designed to contain real personal data, private communications, direct identifiers, medical records, political or religious records, or other real-world sensitive records. It consists of short benchmark stories and belief annotations. Fictional or benchmark-story names, family roles, occupations, emotions, intentions, social relationships, and social situations may appear because they are necessary for Theory-of-Mind evaluation. The dataset is English-language and should not be used for identification, profiling, or inference about real people.",
+  "rai:dataUseCases": [
+    "Validated intended use: benchmark evaluation of language models on explicit belief-structure modeling from short English social-reasoning stories. The two primary tasks are Stage 1 belief extraction and Stage 2 belief labeling under the seven-dimensional OmniToM schema.",
+    "Validated diagnostic analyses include zero-shot belief extraction, zero-shot belief labeling, semantic-judge evaluation of extracted belief tables, and analysis of multi-actor and higher-order Theory-of-Mind reasoning. The accompanying paper reports reliability evidence including 83.72% Stage 1 expert-overlap validation after reconciliation, 92.23% strict all-annotator exact-match Stage 2 label reliability, 88.86% human-human semantic-alignment agreement, model evaluation, and semantic-judge validation.",
+    "The construct represented is controlled, text-based Theory-of-Mind reasoning as explicit actor-centered belief propositions and schema labels, not broad real-world social intelligence. The benchmark is intended to make intermediate mental-state representations inspectable rather than to replace endpoint QA benchmarks entirely.",
+    "Not validated for fine-tuning as a general social-reasoning corpus, training deployed assistants, human psychological assessment, clinical diagnosis, educational placement, safety certification, fairness auditing across demographic groups, or decisions about individuals or communities."
+  ],
+  "rai:dataSocialImpact": "Positive impact: OmniToM can improve transparency in social-reasoning evaluation by moving beyond endpoint answers to explicit belief structures, helping researchers analyze failures in actor tracking, information access, source attribution, implicit inference, and higher-order belief modeling. Negative impact: scores could be misused as evidence that a model has robust real-world social intelligence, interpersonal competence, or deployment safety. Because the benchmark is story-based, English-only, and derived from a bounded upstream corpus, such over-interpretation could encourage premature deployment or mask failures in culturally diverse, interactive, multimodal, or high-stakes contexts. Mitigations include documenting limitations, recommending evaluation rather than training use, preserving upstream attribution and license information, reporting calibration and judge limitations, and explicitly warning users not to treat benchmark performance as safety certification.",
+  "rai:hasSyntheticData": true,
+  "prov:wasDerivedFrom": [
+    {
+      "@id": "https://github.com/zhchen18/ToMBench",
+      "prov:label": "ToMBench",
+      "sc:license": "https://spdx.org/licenses/MIT.html",
+      "prov:wasAttributedTo": {
+        "prov:label": "ToMBench authors"
+      }
+    },
+    {
+      "@id": "https://aclanthology.org/2024.acl-long.847/",
+      "prov:label": "ToMBench paper",
+      "prov:wasAttributedTo": {
+        "prov:label": "Chen et al. 2024"
+      }
+    }
+  ],
+  "prov:wasGeneratedBy": [
+    {
+      "@type": "prov:Activity",
+      "prov:type": {
+        "@id": "https://www.wikidata.org/wiki/Q1172378"
+      },
+      "prov:label": "ToMBench source filtering and split construction",
+      "sc:description": "OmniToM begins from the 1,383-story ToMBench corpus, retains seven high-volume categories that provide sufficiently self-contained mental-state evidence, and releases 895 stories as the benchmark split.",
+      "prov:wasAttributedTo": [
+        {
+          "@type": "prov:Agent",
+          "@id": "omnitom_research_team",
+          "prov:label": "OmniToM research team",
+          "sc:description": "Authors and domain experts responsible for source filtering, split construction, benchmark design, and release preparation."
+        }
+      ]
+    },
+    {
+      "@type": "prov:Activity",
+      "prov:type": {
+        "@id": "https://www.wikidata.org/wiki/Q109719325"
+      },
+      "prov:label": "Human-calibrated LLM-assisted belief extraction and schema labeling",
+      "sc:description": "The benchmark annotations were produced with a human-calibrated LLM-assisted pipeline. Stage 1 belief structures were reconciled by domain experts, and Stage 2 labels were verified by three annotators through majority vote or expert adjudication. The finalized annotation setup yielded 22,343 belief propositions and 156,401 schema labels across the 895-story benchmark split.",
+      "prov:wasAttributedTo": [
+        {
+          "@type": "prov:Agent",
+          "@id": "omnitom_domain_experts_and_annotators",
+          "prov:label": "OmniToM domain experts and annotators",
+          "sc:description": "Human annotators and domain experts who performed schema refinement, pilot annotation, belief extraction, schema labeling, semantic-alignment annotation, calibration, adjudication, and validation."
+        }
+      ]
+    },
+    {
+      "@type": "prov:Activity",
+      "prov:type": {
+        "@id": "https://www.wikidata.org/wiki/Q3306762"
+      },
+      "prov:label": "Quality review, calibration, and semantic-judge validation",
+      "sc:description": "The paper reports multiple validation checks: 83.72% Stage 1 expert-overlap validation after reconciliation, 92.23% strict all-annotator exact-match Stage 2 label reliability, 88.86% human-human semantic-alignment agreement on jointly annotated belief rows, and semantic-judge validation. GPT-5 achieved the highest reported human-judge agreement among tested judge candidates (72.03%) and was fixed as the independent Stage 1 semantic judge. These checks support benchmark use while documenting that Stage 1 extraction scores remain approximate.",
+      "prov:wasAttributedTo": [
+        {
+          "@type": "prov:Agent",
+          "@id": "omnitom_research_team",
+          "prov:label": "OmniToM research team",
+          "sc:description": "Team responsible for benchmark calibration, quality review, and validation reporting."
+        },
+        {
+          "@type": "prov:SoftwareAgent",
+          "@id": "gpt_5",
+          "prov:label": "GPT-5",
+          "sc:description": "Selected as the fixed Stage 1 semantic judge after calibration against human semantic-alignment decisions."
+        }
+      ]
+    }
+  ],
+  "datePublished": "2026-05-04",
+  "version": "0.1.0-review",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "citeAs": "@misc{omnitom2026,\n  title={OmniToM: Benchmarking Theory of Mind in LLMs via Explicit Belief Modeling},\n  author={Anonymous Authors},\n  year={2026},\n  note={Anonymous review release}\n}"
+}
