@@ -59,7 +59,7 @@ COMMON=(
 run_one() {
   local name="$1" config="$2"
   echo "START ${name} $(date -Is)"
-  python -u main_scripts/main_training_script.py --config "$config" \
+  python -u -m main_scripts.main_training_script --config "$config" \
     --results_dir "$RESULTS_DIR/$name" "${COMMON[@]}" \
     --save_trajectory_outputs "$RESULTS_DIR/$name/trajectories.jsonl"
   echo "DONE ${name} $(date -Is)"
