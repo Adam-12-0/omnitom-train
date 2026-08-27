@@ -337,7 +337,10 @@ Output ONLY a JSON object with the defender's explicit prediction, no other text
     step1_response = judge_client.chat.completions.create(
         model=judge_model,
         messages=step1_messages,
-        max_tokens=5000,
+        # This extraction has a small JSON output, while the local Mistral
+        # endpoint has an 8192-token context window.  A large completion
+        # reservation rejects otherwise valid long trajectory transcripts.
+        max_tokens=512,
     )
     predicted_prior_str = step1_response.choices[0].message.content
 
@@ -379,7 +382,9 @@ Output ONLY a single character (1 or 0), nothing else."""
     step2_response = judge_client.chat.completions.create(
         model=judge_model,
         messages=step2_messages,
-        max_tokens=10000,
+        # The open-weight Mistral endpoint is served with an 8192-token
+        # context window; this judge emits only a single binary character.
+        max_tokens=256,
     )
     comparison_str = step2_response.choices[0].message.content.strip()
 

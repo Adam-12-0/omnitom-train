@@ -139,7 +139,11 @@ def load_model(engine, checkpoints_dir = None, device_map = "auto", full_32_prec
             base_model = auto_cls.from_pretrained(loadstring, device_map=device_map, torch_dtype=torch_dtype, trust_remote_code=trust_remote_code)
             model = PeftModel.from_pretrained(base_model, os.path.join(checkpoints_dir, engine), is_trainable=is_trainable)
         else:
-            model = AutoPeftModelForCausalLM.from_pretrained(os.path.join(checkpoints_dir, engine), device_map=device_map, dtype=torch_dtype, trust_remote_code=trust_remote_code, is_trainable=is_trainable)
+            # Load the tokenizer and base model from the canonical HF ID, then
+            # attach the adapter. This avoids older Transformers versions
+            # misreading the adapter's serialized extra_special_tokens list.
+            base_model = auto_cls.from_pretrained(loadstring, device_map=device_map, torch_dtype=torch_dtype, trust_remote_code=trust_remote_code)
+            model = PeftModel.from_pretrained(base_model, os.path.join(checkpoints_dir, engine), is_trainable=is_trainable)
         print(f"Model loaded: {type(model)}")
     elif engine.endswith("fullft_model"):  
         with open(os.path.join(checkpoints_dir, engine, "config.json"), "r") as f:

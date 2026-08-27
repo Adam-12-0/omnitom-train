@@ -78,3 +78,19 @@ Both jobs request `--account=ai`, the `highgpu` partition, and one H100-class GP
 The preferred open evaluation models are configured as attacker `meta-llama/Llama-3.3-70B-Instruct` and judge `mistralai/Mistral-Large-Instruct-2407`. Existing Double Agent checkpoint paths may need to be set to the local locations of those trained adapters.
 
 No Double Agent GRPO training is performed by the OmniToM SFT pipeline.
+
+### Open-weight evaluation on Slurm
+
+The `evaluation/` directory provides Slurm launchers for the open-weight
+attacker (`meta-llama/Llama-3.3-70B-Instruct`) and judge
+(`mistralai/Mistral-Large-Instruct-2407`) served with vLLM BitsAndBytes 4-bit
+quantization. Evaluation jobs wait for both `/health` endpoints before running,
+use the two `orig_v4_2x` attacker prompt variants, and exclude the known-bad
+`evc101` node. `evaluation/slurm_eval_full.sbatch` runs the controlled
+75-scenario comparison for one defender; `evaluation/slurm_grpo_tom_smoke.sbatch`
+validates the ToM-only GRPO path before expensive training. Judge calls use
+bounded completion budgets compatible with its 8,192-token context window.
+
+Runtime logs, large generated evaluation trees, private data, credentials, and
+model caches remain ignored by Git; selected SFT provenance and checkpoint files
+are tracked for reproducibility.

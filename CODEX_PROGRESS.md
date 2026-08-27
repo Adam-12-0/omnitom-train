@@ -1,5 +1,12 @@
 # Codex Progress
 
+## 2026-08-27 — Full common-stack evaluation launched
+
+- Live services: attacker `780216` on `evc104:8001` (`meta-llama/Llama-3.3-70B-Instruct`) and judge `780217` on `evc28:8002` (`mistralai/Mistral-Large-Instruct-2407`). Both request a single H100 80GB-compatible `gpu80`, `account=ai`, `partition=highgpu,normal`, `12:00:00`, and load in vLLM BitsAndBytes 4-bit mode.
+- Submitted full controlled evaluation jobs: Base Qwen3-14B `780238`, and OmniToM Stage 1 SFT Qwen3-14B `780239`. Each requests one `gpu80` under `ai` for `12:00:00`, uses the same 75 held-out ToM-SB scenarios and two original attacker prompt variants (150 trajectories/defender), and waits for HTTP health checks from both serving endpoints before rolling out.
+- Submitted ToM-only GRPO reproduction smoke `780240` under `ai` (one `gpu80`, `06:00:00`). It will wait for the endpoints and then test only two examples with two generations and two turns; all three full ADA GRPO jobs remain gated on this smoke test.
+- Adapter provenance: the primary comparison remains Base vs OmniToM-SFT vs ADA ToM-only trained from the *base* Qwen3-14B. An OmniToM-SFT-to-GRPO run is a separate sixth ablation, not a replacement for the paper-aligned ADA conditions.
+
 ## 2026-07-07 — Phase 1 findings
 
 - `AIDoubleAgentDefenders` commit: `0f1ad2d336d9986eed736a7aa458275beb1535fc`

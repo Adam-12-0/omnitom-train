@@ -302,6 +302,12 @@ class BaseTrainer():
                             "attacker_target_information": info_dict["attacker_target_information"],
                             "conversation_histories": info_dict["conversation_histories"],
                             "attacker_conversation_history": info_dict["attacker_conversation_history"],
+                            # Preserve already-computed reward signals so full
+                            # evaluations can report trajectory-level CIs without
+                            # rerunning an LLM judge.
+                            "rewards_per_turn": info_dict["rewards_per_turn"],
+                            "core_trajectory_rewards_per_turn": info_dict["core_trajectory_rewards_per_turn"],
+                            "turns": info_dict["step"] + 1,
                         }
                         f.write(json.dumps(save_dict) + "\n")
                 print(f"Eval results saved to {eval_results_savepath}")
@@ -1241,5 +1247,4 @@ class TrajectorywiseGRPOTrainer(BaseTrainer):
                     if hasattr(args.model, 'train'):
                         args.model.train()
                     next_eval_idx += 1
-
 

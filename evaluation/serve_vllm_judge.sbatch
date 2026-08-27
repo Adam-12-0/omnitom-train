@@ -4,8 +4,9 @@
 #SBATCH --partition=highgpu,normal
 #SBATCH --gres=gpu:1
 #SBATCH --constraint=gpu80
+#SBATCH --exclude=evc101
 #SBATCH --cpus-per-task=8
-#SBATCH --time=06:00:00
+#SBATCH --time=3-00:00:00
 #SBATCH --output=logs/eval_judge-%j.out
 #SBATCH --error=logs/eval_judge-%j.err
 
@@ -42,4 +43,5 @@ exec python -m vllm.entrypoints.openai.api_server \
   --dtype bfloat16 \
   --max-model-len 8192 \
   --gpu-memory-utilization 0.90 \
+  --seed 42 \
   --trust-remote-code

@@ -38,6 +38,11 @@ results/checkpoints/omnitom_stage1_sft_qwen3_14b/*
 !results/checkpoints/omnitom_stage1_sft_qwen3_14b/training_provenance.json
 results/checkpoints/omnitom_stage1_sft_qwen3_14b_smoke/
 
+# Full evaluation outputs and GRPO smoke trajectories are generated artifacts;
+# retain code/configs and selected checkpoint provenance in version control.
+results/evaluations/
+results/grpo_smoke/
+
 # Keep repository history manageable; adapter_model.safetensors is tracked by LFS.
 results/**/*.pt
 results/**/*.pth

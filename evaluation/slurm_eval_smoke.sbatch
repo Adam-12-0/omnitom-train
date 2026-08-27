@@ -4,6 +4,8 @@
 #SBATCH --partition=highgpu,normal
 #SBATCH --gres=gpu:1
 #SBATCH --constraint=gpu80
+# evc101 has no usable NVIDIA device in the Codex allocation; avoid it.
+#SBATCH --exclude=evc101
 #SBATCH --cpus-per-task=8
 #SBATCH --time=06:00:00
 #SBATCH --output=logs/eval_smoke-%j.out
@@ -55,6 +57,12 @@ COMMON=(
   --judge_endpoint "$JUDGE_ENDPOINT"
   --attacker_model meta-llama/Llama-3.3-70B-Instruct
   --judge_model mistralai/Mistral-Large-Instruct-2407
+  --attacker_prompts_dir utils/sequence_of_prompt_ablations/orig_v4_2x
+  # Force identical evaluation rewards for Base and OmniToM; the adapter YAML
+  # otherwise contributes its training reward and makes fooling incomparable.
+  --reward_functions fooling_successful
+  --eval_reward_functions backward_ToM_belief
+  --eval_trajectory_level_rewards prior_knowledge_ToM
   --torch_seed 42 --seed 42 --loss_type dr_grpo
 )
 
