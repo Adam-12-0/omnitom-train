@@ -9,6 +9,12 @@
 - Full GRPO reproductions submitted from base Qwen3-14B: ToM-only `784989` (running), fooling-only `784990` (pending priority), and joint ToM+fooling `784991` (pending priority). All use the same Llama-3.3-70B attacker and Mistral-Large judge services (`780244`/`780245`).
 - Paired Base-vs-OmniToM comparison over the 150 matched scenario/prompt trajectories: Base fooling `62.67%` versus OmniToM-SFT `44.00%` (difference `-18.67` percentage points; 20,000-resample paired bootstrap 95% CI approximately `[-30.0, -7.3]`; paired sign-randomization p approximately `0.0023`). OmniToM had higher prior-knowledge ToM trajectory mean (`0.2333` vs `0.2067`) and higher attacker extraction rate (`42.67%` vs `27.33%`), so structured belief supervision improved those signals but did not improve deception/fooling in this evaluation.
 
+## 2026-08-28 — GRPO OOM mitigation and reruns
+
+- Initial full GRPO jobs `784989` (ToM-only) and `784990` (fooling-only) failed during the defender per-token log-probability pass with CUDA OOM on H100 80GB; joint job `784991` was canceled before reaching the same failure path.
+- Updated `evaluation/slurm_grpo_full.sbatch` to set `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` and default `GRPO_MAX_COMPLETION_LENGTH=4096` (overrideable), reducing activation memory while retaining 15 turns, 8 generations, and the original learning-rate/reward recipes.
+- Corrected reruns submitted: ToM-only `785206`, fooling-only `785207`, and joint ToM+fooling `785208`, all pending priority and using the existing healthy services.
+
 ## 2026-08-27 — Full common-stack evaluation launched
 
 - Live services: attacker `780216` on `evc104:8001` (`meta-llama/Llama-3.3-70B-Instruct`) and judge `780217` on `evc28:8002` (`mistralai/Mistral-Large-Instruct-2407`). Both request a single H100 80GB-compatible `gpu80`, `account=ai`, `partition=highgpu,normal`, `12:00:00`, and load in vLLM BitsAndBytes 4-bit mode.

@@ -30,6 +30,10 @@ export WANDB_MODE="offline"
 export WANDB_PROJECT="omnitom-open-grpo"
 export SHELLS_LAUNCHER_LOG_NAME="ada_grpo_${GRPO_LABEL}_${SLURM_JOB_ID}"
 export TOKENIZERS_PARALLELISM=false
+# A 20k-token reservation exhausts a single H100 during the training
+# log-probability backward pass.  The actual ToM-SB replies are short; cap the
+# generated completion to keep the GRPO reproduction runnable on one H100.
+export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"
 
 if [[ -z "${ATTACKER_ENDPOINT:-}" || -z "${JUDGE_ENDPOINT:-}" ]]; then
   : "${ATTACKER_JOB_ID:?Set service endpoint variables or service job IDs}"
@@ -66,6 +70,7 @@ fi
 
 MODEL_ENGINE="${MODEL_ENGINE:-Qwen3-14B}"
 MODEL_CHECKPOINTS_DIR="${MODEL_CHECKPOINTS_DIR:-}"
+GRPO_MAX_COMPLETION_LENGTH="${GRPO_MAX_COMPLETION_LENGTH:-4096}"
 MODEL_ARGS=(--engine "$MODEL_ENGINE" --model_savepath "$ROOT/results/checkpoints/$GRPO_LABEL")
 if [[ -n "$MODEL_CHECKPOINTS_DIR" ]]; then MODEL_ARGS+=(--checkpoints_dir "$MODEL_CHECKPOINTS_DIR"); fi
 
@@ -79,7 +84,7 @@ python -u -m main_scripts.main_training_script \
   --judge_model mistralai/Mistral-Large-Instruct-2407 \
   --attacker_prompts_dir utils/sequence_of_prompt_ablations/orig_v4_2x \
   --gradient_accumulation_steps 4 \
-  --max_iterations 15 --num_generations 8 --max_completion_length 20000 \
+  --max_iterations 15 --num_generations 8 --max_completion_length "$GRPO_MAX_COMPLETION_LENGTH" \
   --learning_rate 1e-5 --lr_scheduler linear --loss_type dr_grpo \
   --torch_seed 42 --seed 42 \
   --save_trajectory_outputs "$RESULTS_DIR/trajectories.jsonl"
