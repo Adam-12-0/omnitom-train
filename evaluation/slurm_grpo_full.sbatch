@@ -24,6 +24,14 @@ source /apps/anaconda/anaconda-2024.10/etc/profile.d/conda.sh
 conda activate /home/ad906660/.conda/envs/tom
 mkdir -p "$ROOT/logs" "$ROOT/results/grpo/$GRPO_LABEL" "$ROOT/results/checkpoints/$GRPO_LABEL"
 
+echo "GPU diagnostic: host=$(hostname) job=${SLURM_JOB_ID:-unknown}"
+if ! command -v nvidia-smi >/dev/null 2>&1; then
+  echo "ERROR: nvidia-smi is unavailable on this allocation" >&2
+  exit 1
+fi
+nvidia-smi --query-gpu=index,name,compute_cap,memory.total,memory.free --format=csv,noheader
+nvidia-smi
+
 export RESULTS_DIR="$ROOT/results/grpo/$GRPO_LABEL"
 export AZURE_OPENAI_ENDPOINT="${AZURE_OPENAI_ENDPOINT:-unused}"
 export WANDB_MODE="offline"
@@ -87,4 +95,5 @@ python -u -m main_scripts.main_training_script \
   --max_iterations 15 --num_generations 8 --max_completion_length "$GRPO_MAX_COMPLETION_LENGTH" \
   --learning_rate 1e-5 --lr_scheduler linear --loss_type dr_grpo \
   --torch_seed 42 --seed 42 \
+  --load_in_4bit \
   --save_trajectory_outputs "$RESULTS_DIR/trajectories.jsonl"

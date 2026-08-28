@@ -11,6 +11,9 @@
 
 ## 2026-08-28 — GRPO OOM mitigation and reruns
 
+- Audit found the GRPO defender was not actually quantized: the loader constructed a BitsAndBytes config but did not pass it to `from_pretrained`, and the launcher supplied no 4-bit flag. Fixed the loader, added `--load_in_4bit`, and invoke `prepare_model_for_kbit_training` for quantized LoRA training.
+- Added per-job `nvidia-smi` diagnostics (GPU name, compute capability, memory, and full status) to the GRPO launcher. The launcher continues to exclude known-bad `evc101`; a diagnostic failure now exits before training.
+
 - Initial full GRPO jobs `784989` (ToM-only) and `784990` (fooling-only) failed during the defender per-token log-probability pass with CUDA OOM on H100 80GB; joint job `784991` was canceled before reaching the same failure path.
 - Updated `evaluation/slurm_grpo_full.sbatch` to set `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` and default `GRPO_MAX_COMPLETION_LENGTH=4096` (overrideable), reducing activation memory while retaining 15 turns, 8 generations, and the original learning-rate/reward recipes.
 - Corrected reruns submitted: ToM-only `785206`, fooling-only `785207`, and joint ToM+fooling `785208`, all pending priority and using the existing healthy services.

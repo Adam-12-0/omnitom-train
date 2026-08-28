@@ -110,6 +110,7 @@ def load_model(engine, checkpoints_dir = None, device_map = "auto", full_32_prec
         torch_dtype = "auto"
     print(f"Using {torch_dtype=} during model loading")
     
+    quantization_config = None
     if load_in_8bit:
         quantization_config = BitsAndBytesConfig(load_in_8bit=True)
     elif load_in_4bit:  # This should usually not be used for small model
@@ -122,7 +123,7 @@ def load_model(engine, checkpoints_dir = None, device_map = "auto", full_32_prec
 
     if engine.endswith("quantized_model"):  # FULLLY SAVED MODEL
         tokenizer = AutoTokenizer.from_pretrained(loadstring, trust_remote_code=trust_remote_code)
-        model = auto_cls.from_pretrained(loadstring, device_map="auto", dtype=torch_dtype, trust_remote_code=trust_remote_code)
+        model = auto_cls.from_pretrained(loadstring, device_map="auto", torch_dtype=torch_dtype, quantization_config=quantization_config, trust_remote_code=trust_remote_code)
         print("Base model loaded, now replacing with saved state dict.")
         devices_mapper = {}
         for name, module in model.named_parameters():
@@ -136,13 +137,13 @@ def load_model(engine, checkpoints_dir = None, device_map = "auto", full_32_prec
           or os.path.isfile(os.path.join(checkpoints_dir or "", engine, "adapter_config.json"))):
         tokenizer = AutoTokenizer.from_pretrained(loadstring, trust_remote_code=trust_remote_code)
         if base_model_name in vl_model_names:
-            base_model = auto_cls.from_pretrained(loadstring, device_map=device_map, torch_dtype=torch_dtype, trust_remote_code=trust_remote_code)
+            base_model = auto_cls.from_pretrained(loadstring, device_map=device_map, torch_dtype=torch_dtype, quantization_config=quantization_config, trust_remote_code=trust_remote_code)
             model = PeftModel.from_pretrained(base_model, os.path.join(checkpoints_dir, engine), is_trainable=is_trainable)
         else:
             # Load the tokenizer and base model from the canonical HF ID, then
             # attach the adapter. This avoids older Transformers versions
             # misreading the adapter's serialized extra_special_tokens list.
-            base_model = auto_cls.from_pretrained(loadstring, device_map=device_map, torch_dtype=torch_dtype, trust_remote_code=trust_remote_code)
+            base_model = auto_cls.from_pretrained(loadstring, device_map=device_map, torch_dtype=torch_dtype, quantization_config=quantization_config, trust_remote_code=trust_remote_code)
             model = PeftModel.from_pretrained(base_model, os.path.join(checkpoints_dir, engine), is_trainable=is_trainable)
         print(f"Model loaded: {type(model)}")
     elif engine.endswith("fullft_model"):  
@@ -151,10 +152,10 @@ def load_model(engine, checkpoints_dir = None, device_map = "auto", full_32_prec
             configs = json.loads(info)
             tokenizer_loadstring = configs.get("_name_or_path")
         tokenizer = AutoTokenizer.from_pretrained(tokenizer_loadstring, trust_remote_code=trust_remote_code)
-        model = auto_cls.from_pretrained(os.path.join(checkpoints_dir, engine), device_map=device_map, dtype=torch_dtype, trust_remote_code=trust_remote_code)
+        model = auto_cls.from_pretrained(os.path.join(checkpoints_dir, engine), device_map=device_map, torch_dtype=torch_dtype, quantization_config=quantization_config, trust_remote_code=trust_remote_code)
     else:
         loadstring = model_loadstring_dict[engine] + "/" +  engine
-        model = auto_cls.from_pretrained(loadstring, device_map=device_map, dtype=torch_dtype, trust_remote_code=trust_remote_code)
+        model = auto_cls.from_pretrained(loadstring, device_map=device_map, torch_dtype=torch_dtype, quantization_config=quantization_config, trust_remote_code=trust_remote_code)
         tokenizer = AutoTokenizer.from_pretrained(loadstring, trust_remote_code=trust_remote_code)
 
     print("Model loaded of type:", type(model))

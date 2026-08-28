@@ -93,12 +93,18 @@ def main(args):
         tokenizer = None
         print(f"Defender model using Gemini API: {args.engine}")
     else:
-        model_info = load_model(args.engine, args.checkpoints_dir, manual_precision=False, is_trainable=True)
+        model_info = load_model(args.engine, args.checkpoints_dir, manual_precision=False,
+                                load_in_4bit=args.load_in_4bit,
+                                load_in_8bit=args.load_in_8bit,
+                                is_trainable=True)
         model = model_info["model"]
         tokenizer = model_info["tokenizer"]
 
         # || Add Lora ||
         from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, PeftModel
+
+        if args.load_in_4bit or args.load_in_8bit:
+            model = prepare_model_for_kbit_training(model)
         
         # continue_training is now the default behavior when a checkpoint is provided
         continue_training = not args.stack_new_adapter
@@ -578,6 +584,8 @@ if __name__ == "__main__":
     parser.add_argument("--train_skip_fraction", type=float, default=0.0, help="Skip this fraction of the training set (e.g., 0.5 to use only the second half)")
     parser.add_argument("--engine", type=str, default="Qwen3-8B", help="Model name/identifier")
     parser.add_argument("--checkpoints_dir", type=str, default="", help="Directory containing model checkpoints")
+    parser.add_argument("--load_in_4bit", action="store_true", help="Load the local defender with BitsAndBytes NF4 4-bit quantization")
+    parser.add_argument("--load_in_8bit", action="store_true", help="Load the local defender with BitsAndBytes 8-bit quantization")
     parser.add_argument("--model_savepath", type=str, default="", help="Path to save trained model; auto-computed from other args if not set")
     parser.add_argument("--results_dir", type=str, default=os.environ["RESULTS_DIR"], help="Base results directory used when auto-computing model_savepath")
     parser.add_argument("--runname_suffix", type=str, default="run", help="Prefix string for the auto-computed run name")
