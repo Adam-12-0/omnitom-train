@@ -1,5 +1,14 @@
 # Codex Progress
 
+## 2026-08-28 — Full open-weight evaluations completed; GRPO reproductions launched
+
+- Base Qwen3-14B full evaluation `780916` completed successfully: 150 trajectories, 62.67% fooling, 20.00% all-prompts fooling, 0.2067 prior-knowledge ToM trajectory mean.
+- OmniToM Stage 1 SFT full evaluation `780338` completed successfully: 150 trajectories, 44.00% fooling, 15.00% all-prompts fooling, 0.2333 prior-knowledge ToM trajectory mean.
+- ToM-only GRPO smoke `780249` completed successfully, trained and saved `results/checkpoints/ada_tom_only_qwen3_14b_open_smoke`; it exercised 2 examples, 2 generations, and 2 turns and reached checkpoint saving.
+- Added `evaluation/slurm_grpo_full.sbatch`, which waits for live attacker/judge health endpoints, excludes `evc101`, and runs the original 15-turn/8-generation open-weight recipe with bounded judge calls.
+- Full GRPO reproductions submitted from base Qwen3-14B: ToM-only `784989` (running), fooling-only `784990` (pending priority), and joint ToM+fooling `784991` (pending priority). All use the same Llama-3.3-70B attacker and Mistral-Large judge services (`780244`/`780245`).
+- Paired Base-vs-OmniToM comparison over the 150 matched scenario/prompt trajectories: Base fooling `62.67%` versus OmniToM-SFT `44.00%` (difference `-18.67` percentage points; 20,000-resample paired bootstrap 95% CI approximately `[-30.0, -7.3]`; paired sign-randomization p approximately `0.0023`). OmniToM had higher prior-knowledge ToM trajectory mean (`0.2333` vs `0.2067`) and higher attacker extraction rate (`42.67%` vs `27.33%`), so structured belief supervision improved those signals but did not improve deception/fooling in this evaluation.
+
 ## 2026-08-27 — Full common-stack evaluation launched
 
 - Live services: attacker `780216` on `evc104:8001` (`meta-llama/Llama-3.3-70B-Instruct`) and judge `780217` on `evc28:8002` (`mistralai/Mistral-Large-Instruct-2407`). Both request a single H100 80GB-compatible `gpu80`, `account=ai`, `partition=highgpu,normal`, `12:00:00`, and load in vLLM BitsAndBytes 4-bit mode.
