@@ -105,6 +105,11 @@ def main(args):
 
         if args.load_in_4bit or args.load_in_8bit:
             model = prepare_model_for_kbit_training(model)
+            # KV caching retains activations across training forwards and can
+            # exhaust a single H100 even with 4-bit weights.
+            model.config.use_cache = False
+        if args.gradient_checkpointing:
+            model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
         
         # continue_training is now the default behavior when a checkpoint is provided
         continue_training = not args.stack_new_adapter
@@ -586,6 +591,7 @@ if __name__ == "__main__":
     parser.add_argument("--checkpoints_dir", type=str, default="", help="Directory containing model checkpoints")
     parser.add_argument("--load_in_4bit", action="store_true", help="Load the local defender with BitsAndBytes NF4 4-bit quantization")
     parser.add_argument("--load_in_8bit", action="store_true", help="Load the local defender with BitsAndBytes 8-bit quantization")
+    parser.add_argument("--gradient_checkpointing", action="store_true", help="Enable non-reentrant gradient checkpointing for local defender training")
     parser.add_argument("--model_savepath", type=str, default="", help="Path to save trained model; auto-computed from other args if not set")
     parser.add_argument("--results_dir", type=str, default=os.environ["RESULTS_DIR"], help="Base results directory used when auto-computing model_savepath")
     parser.add_argument("--runname_suffix", type=str, default="run", help="Prefix string for the auto-computed run name")

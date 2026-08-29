@@ -19,6 +19,7 @@
 - Pre-quantization pending reruns `785206`–`785208` were canceled. Corrected 4-bit reruns submitted: ToM-only `785220`, fooling-only `785221`, and joint ToM+fooling `785222`, using the existing healthy services; each now records `nvidia-smi` diagnostics before training.
 - Jobs `785220`–`785222` reached healthy H100 PCIe nodes but failed immediately because relative `GRPO_CONFIG` paths were resolved after `cd AIDoubleAgentDefenders`. The launcher now canonicalizes the config path against `SLURM_SUBMIT_DIR`; no GPU fault was observed.
 - Resubmitted after the path fix: ToM-only `787177`, fooling-only `787178`, and joint ToM+fooling `787179` (all use actual 4-bit defender loading and preflight `nvidia-smi`).
+- Jobs `787177`–`787179` confirmed 4-bit `Linear4bit` loading and healthy H100s, then hit activation OOM in Qwen attention/log-prob computation. Added non-reentrant gradient checkpointing, disabled KV cache for k-bit training, and reduced the default completion cap to 2048 for the next retry.
 
 ## 2026-08-27 — Full common-stack evaluation launched
 

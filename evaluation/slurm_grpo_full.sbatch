@@ -82,7 +82,7 @@ fi
 
 MODEL_ENGINE="${MODEL_ENGINE:-Qwen3-14B}"
 MODEL_CHECKPOINTS_DIR="${MODEL_CHECKPOINTS_DIR:-}"
-GRPO_MAX_COMPLETION_LENGTH="${GRPO_MAX_COMPLETION_LENGTH:-4096}"
+GRPO_MAX_COMPLETION_LENGTH="${GRPO_MAX_COMPLETION_LENGTH:-2048}"
 MODEL_ARGS=(--engine "$MODEL_ENGINE" --model_savepath "$ROOT/results/checkpoints/$GRPO_LABEL")
 if [[ -n "$MODEL_CHECKPOINTS_DIR" ]]; then MODEL_ARGS+=(--checkpoints_dir "$MODEL_CHECKPOINTS_DIR"); fi
 
@@ -100,4 +100,5 @@ python -u -m main_scripts.main_training_script \
   --learning_rate 1e-5 --lr_scheduler linear --loss_type dr_grpo \
   --torch_seed 42 --seed 42 \
   --load_in_4bit \
+  --gradient_checkpointing \
   --save_trajectory_outputs "$RESULTS_DIR/trajectories.jsonl"
