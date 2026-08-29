@@ -87,6 +87,7 @@ MODEL_ENGINE="${MODEL_ENGINE:-Qwen3-14B}"
 MODEL_CHECKPOINTS_DIR="${MODEL_CHECKPOINTS_DIR:-}"
 GRPO_MAX_COMPLETION_LENGTH="${GRPO_MAX_COMPLETION_LENGTH:-1024}"
 MODEL_ARGS=(--engine "$MODEL_ENGINE" --model_savepath "$ROOT/results/checkpoints/$GRPO_LABEL")
+MODEL_ARGS+=(--device_map balanced)
 if [[ -n "$MODEL_CHECKPOINTS_DIR" ]]; then MODEL_ARGS+=(--checkpoints_dir "$MODEL_CHECKPOINTS_DIR"); fi
 
 python -u -m main_scripts.main_training_script \

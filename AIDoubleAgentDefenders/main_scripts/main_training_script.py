@@ -93,7 +93,7 @@ def main(args):
         tokenizer = None
         print(f"Defender model using Gemini API: {args.engine}")
     else:
-        model_info = load_model(args.engine, args.checkpoints_dir, manual_precision=False,
+        model_info = load_model(args.engine, args.checkpoints_dir, device_map=args.device_map, manual_precision=False,
                                 load_in_4bit=args.load_in_4bit,
                                 load_in_8bit=args.load_in_8bit,
                                 is_trainable=True)
@@ -588,6 +588,7 @@ if __name__ == "__main__":
     parser.add_argument("--eval_start_p", type=float, default=0.75, help="Evaluation split start percentage")
     parser.add_argument("--train_skip_fraction", type=float, default=0.0, help="Skip this fraction of the training set (e.g., 0.5 to use only the second half)")
     parser.add_argument("--engine", type=str, default="Qwen3-8B", help="Model name/identifier")
+    parser.add_argument("--device_map", type=str, default="auto", help="Transformers device map for local defender (auto, balanced, or explicit map)")
     parser.add_argument("--checkpoints_dir", type=str, default="", help="Directory containing model checkpoints")
     parser.add_argument("--load_in_4bit", action="store_true", help="Load the local defender with BitsAndBytes NF4 4-bit quantization")
     parser.add_argument("--load_in_8bit", action="store_true", help="Load the local defender with BitsAndBytes 8-bit quantization")
