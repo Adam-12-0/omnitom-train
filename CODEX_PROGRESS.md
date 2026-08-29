@@ -17,6 +17,7 @@
 - Initial full GRPO jobs `784989` (ToM-only) and `784990` (fooling-only) failed during the defender per-token log-probability pass with CUDA OOM on H100 80GB; joint job `784991` was canceled before reaching the same failure path.
 - Updated `evaluation/slurm_grpo_full.sbatch` to set `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` and default `GRPO_MAX_COMPLETION_LENGTH=4096` (overrideable), reducing activation memory while retaining 15 turns, 8 generations, and the original learning-rate/reward recipes.
 - Pre-quantization pending reruns `785206`–`785208` were canceled. Corrected 4-bit reruns submitted: ToM-only `785220`, fooling-only `785221`, and joint ToM+fooling `785222`, using the existing healthy services; each now records `nvidia-smi` diagnostics before training.
+- Jobs `785220`–`785222` reached healthy H100 PCIe nodes but failed immediately because relative `GRPO_CONFIG` paths were resolved after `cd AIDoubleAgentDefenders`. The launcher now canonicalizes the config path against `SLURM_SUBMIT_DIR`; no GPU fault was observed.
 
 ## 2026-08-27 — Full common-stack evaluation launched
 

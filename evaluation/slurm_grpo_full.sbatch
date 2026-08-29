@@ -18,6 +18,10 @@ set -euo pipefail
 ROOT="${SLURM_SUBMIT_DIR:?}"
 : "${GRPO_CONFIG:?Set GRPO_CONFIG to an open_repro_traj_*.yaml config}"
 : "${GRPO_LABEL:?Set GRPO_LABEL to a unique result/checkpoint label}"
+# Resolve config paths before changing into the embedded project directory.
+if [[ "$GRPO_CONFIG" != /* ]]; then
+  GRPO_CONFIG="$ROOT/$GRPO_CONFIG"
+fi
 cd "$ROOT/AIDoubleAgentDefenders"
 
 source /apps/anaconda/anaconda-2024.10/etc/profile.d/conda.sh
