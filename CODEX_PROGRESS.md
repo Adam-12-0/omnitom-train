@@ -22,6 +22,7 @@
 - Jobs `787177`–`787179` confirmed 4-bit `Linear4bit` loading and healthy H100s, then hit activation OOM in Qwen attention/log-prob computation. Added non-reentrant gradient checkpointing, disabled KV cache for k-bit training, and reduced the default completion cap to 2048 for the next retry.
 - Resubmitted memory-safe retries: ToM-only `787189`, fooling-only `787190`, and joint ToM+fooling `787191`.
 - Retries `787189`–`787191` still OOM'd during attention with 8-generation batches despite 4-bit weights, checkpointing, and disabled KV cache. Reduced the launcher to 2 generations/update (gradient accumulation 16) and a 1024 completion cap for the next retry.
+- Retries `787292`–`787294` still OOM'd at 77–79 GiB on healthy H100s even with 2 generations, checkpointing, and KV-cache disabled; individual multi-turn sequences reached 2.4–2.7k tokens. Switched the launcher to 2 GPUs/job so `device_map=auto` can shard the defender and activation workload.
 
 ## 2026-08-27 — Full common-stack evaluation launched
 
