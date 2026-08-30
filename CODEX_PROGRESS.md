@@ -25,6 +25,7 @@
 - Retries `787292`–`787294` still OOM'd at 77–79 GiB on healthy H100s even with 2 generations, checkpointing, and KV-cache disabled; individual multi-turn sequences reached 2.4–2.7k tokens. Switched the launcher to 2 GPUs/job so `device_map=auto` can shard the defender and activation workload.
 - Fooling-only `787309` subsequently OOM'd on GPU 1 despite two GPUs. Added explicit `device_map=balanced` placement and resubmitted it as `787322`; ToM-only `787308` and joint `787310` remain under observation.
 - ToM-only `787308` later OOM'd on GPU 1 at ~78.4 GiB while joint `787310` and fooling-only `787322` continued. Escalated the launcher to four GPUs with balanced placement for the ToM-only retry.
+- `787310` and `787322` ultimately OOM'd on GPU 1; four-GPU ToM-only `787334` instead reached the training/evaluation stage but failed when services `780244/780245` timed out at three days, producing connection-refused errors. Relaunched services `787496`/`787497` and resubmitted four-GPU GRPO jobs: ToM-only `787498`, fooling-only `787499`, joint `787500`.
 
 ## 2026-08-27 — Full common-stack evaluation launched
 
