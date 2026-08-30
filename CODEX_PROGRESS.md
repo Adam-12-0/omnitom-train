@@ -5,6 +5,7 @@
 - Located the adjacent `../OmniToM` workspace containing the merged 126-table human-agreement protocol (9 levels × 14 stories), prior judge outputs for GPT-5, Gemini, Claude, Llama, and DeepSeek, and the reusable Mistral-Large Stage-1 evaluator.
 - Submitted Mistral-Large-Instruct-2407 calibration job `787508` (12-hour GPU allocation, 126-table protocol) from the adjacent workspace. Results are not available yet.
 - The requested held-out structured metrics, assistant-only masked SFT, format-only control, Double-Agent JSON control, independent extraction judging, behavioral analysis, and multi-seed comparisons are not yet submitted; they require new scripts/configs beyond the existing trajectory evaluator.
+- Corrected the OmniToM Stage 1 split to deterministic randomization within each story category (805 train / 90 validation; no test split), preserving proportional category representation. The regenerated data and manifest are in `data/omnitom_stage1_sft_stratified`; retraining submitted as SFT job `787510` to a new checkpoint path, leaving the historical adapter unchanged.
 
 ## 2026-08-28 — Full open-weight evaluations completed; GRPO reproductions launched
 
