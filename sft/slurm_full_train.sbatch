@@ -15,6 +15,8 @@ cd "$ROOT"
 export GPU_TYPE="${GPU_TYPE:-NVIDIA H100 80GB HBM3 (nvidia_h100_80gb_hbm3)}"
 if [[ -n "${VENV_PATH:-}" && -f "$VENV_PATH" ]]; then
   source "$VENV_PATH"
+elif [[ -f "$ROOT/.venv/bin/activate" ]] && "$ROOT/.venv/bin/python" -c 'import transformers, trl' >/dev/null 2>&1; then
+  source "$ROOT/.venv/bin/activate"
 else
   source /apps/anaconda/anaconda-2024.10/etc/profile.d/conda.sh
   conda activate /home/ad906660/.conda/envs/tom
