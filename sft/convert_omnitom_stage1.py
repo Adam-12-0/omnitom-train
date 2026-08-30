@@ -6,6 +6,7 @@ import argparse
 import json
 import random
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -56,12 +57,32 @@ def main() -> None:
     args = ap.parse_args()
     records = load_records(args.input)
     rng = random.Random(args.seed)
-    rng.shuffle(records)
     if args.smoke:
         records = records[: min(4, len(records))]
-    n_valid = max(1, round(len(records) * args.validation_fraction)) if len(records) > 1 else 0
-    valid = records[:n_valid]
-    train = records[n_valid:]
+    # Stratified random split: shuffle independently within each story type,
+    # then allocate the requested fraction using largest remainders so the
+    # global validation size remains exact.
+    by_category = defaultdict(list)
+    for record in records:
+        by_category[record.get("story_category", "")].append(record)
+    target_valid = max(1, round(len(records) * args.validation_fraction)) if len(records) > 1 else 0
+    allocations = {}
+    remainders = []
+    for category, rows in by_category.items():
+        raw = len(rows) * args.validation_fraction
+        base = int(raw)
+        allocations[category] = base
+        remainders.append((raw - base, category))
+    for _, category in sorted(remainders, reverse=True)[: target_valid - sum(allocations.values())]:
+        allocations[category] += 1
+    train, valid = [], []
+    for category, rows in by_category.items():
+        rng.shuffle(rows)
+        n = allocations[category]
+        valid.extend(rows[:n])
+        train.extend(rows[n:])
+    rng.shuffle(train)
+    rng.shuffle(valid)
     if not train and valid:
         train, valid = valid, []
     args.output_dir.mkdir(parents=True, exist_ok=True)
@@ -73,6 +94,9 @@ def main() -> None:
         "source": str(args.input.resolve()), "seed": args.seed,
         "validation_fraction": args.validation_fraction, "smoke": args.smoke,
         "train_examples": len(train), "validation_examples": len(valid),
+        "split_method": "stratified_random_within_story_category_largest_remainder",
+        "train_by_category": {k: sum(r.get("story_category", "") == k for r in train) for k in sorted(by_category)},
+        "validation_by_category": {k: sum(r.get("story_category", "") == k for r in valid) for k in sorted(by_category)},
         "format": "messages: system + existing OmniToM Stage 1 extraction prompt + assistant Actor | Belief | Order table",
         "excluded": ["Stage 2 schema labels", "LLM judge", "GRPO"],
     }

@@ -1,0 +1,33 @@
+{
+  "source": "/lustre/fs1/home/ad906660/omnitom-train/omnitom-benchmark-review/benchmark_story_belief_labels.jsonl",
+  "seed": 42,
+  "validation_fraction": 0.1,
+  "smoke": false,
+  "train_examples": 805,
+  "validation_examples": 90,
+  "split_method": "stratified_random_within_story_category_largest_remainder",
+  "train_by_category": {
+    "Ambiguous Story Task": 88,
+    "False Belief Task": 87,
+    "Faux-pas Recognition Test": 128,
+    "Hinting Task Test": 90,
+    "Persuasion Story Task": 87,
+    "Scalar Implicature Test": 139,
+    "Strange Story Task": 186
+  },
+  "validation_by_category": {
+    "Ambiguous Story Task": 10,
+    "False Belief Task": 10,
+    "Faux-pas Recognition Test": 14,
+    "Hinting Task Test": 10,
+    "Persuasion Story Task": 10,
+    "Scalar Implicature Test": 15,
+    "Strange Story Task": 21
+  },
+  "format": "messages: system + existing OmniToM Stage 1 extraction prompt + assistant Actor | Belief | Order table",
+  "excluded": [
+    "Stage 2 schema labels",
+    "LLM judge",
+    "GRPO"
+  ]
+}
