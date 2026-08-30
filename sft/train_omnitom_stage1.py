@@ -50,6 +50,8 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--smoke", action="store_true")
     ap.add_argument("--max-steps", type=int, default=-1)
+    ap.add_argument("--assistant-only-loss", action="store_true",
+                    help="Mask system and user tokens; optimize assistant completions only.")
     args = ap.parse_args()
     set_seed(args.seed)
     args.output_dir.mkdir(parents=True, exist_ok=True)
@@ -69,8 +71,10 @@ def main() -> None:
         r=32, lora_alpha=64, lora_dropout=0.0, bias="none", task_type="CAUSAL_LM",
         target_modules=TARGET_MODULES,
     )
-    train_text = [{"text": render(tokenizer, x)} for x in train_rows]
-    valid_text = [{"text": render(tokenizer, x)} for x in valid_rows]
+    # Keep the role structure so SFTTrainer can construct an assistant-only
+    # loss mask from the model chat template when requested.
+    train_text = [{"messages": x["messages"]} for x in train_rows]
+    valid_text = [{"messages": x["messages"]} for x in valid_rows]
     try:
         from datasets import Dataset
         train_ds, valid_ds = Dataset.from_list(train_text), Dataset.from_list(valid_text)
@@ -95,7 +99,7 @@ def main() -> None:
     common["eval_strategy" if "eval_strategy" in ta_params else "evaluation_strategy"] = "steps"
     try:
         from trl import SFTConfig
-        common["dataset_text_field"] = "text"
+        common["assistant_only_loss"] = args.assistant_only_loss
         training_args = SFTConfig(**common, max_length=args.max_seq_length)
         has_sft_config = True
     except (ImportError, TypeError):
@@ -109,8 +113,6 @@ def main() -> None:
     trainer_kwargs["processing_class" if "processing_class" in trainer_params else "tokenizer"] = tokenizer
     if "max_seq_length" in trainer_params:
         trainer_kwargs["max_seq_length"] = args.max_seq_length
-    if "dataset_text_field" in trainer_params and not has_sft_config:
-        trainer_kwargs["dataset_text_field"] = "text"
     trainer = SFTTrainer(**trainer_kwargs)
     start = time.time()
     result = trainer.train()
@@ -127,6 +129,7 @@ def main() -> None:
         "bf16": True, "gradient_checkpointing": True, "max_sequence_length": args.max_seq_length,
         "per_device_batch_size": args.per_device_batch_size,
         "gradient_accumulation_steps": args.gradient_accumulation_steps,
+        "assistant_only_loss": args.assistant_only_loss,
         "effective_batch_size": args.per_device_batch_size * args.gradient_accumulation_steps,
         "slurm_job_id": os.environ.get("SLURM_JOB_ID", "not-set"), "gpu_type": os.environ.get("GPU_TYPE", "unknown"),
         "memory_note": "bf16 configuration preserved; normal partition 15.77 GiB GPU OOMed, so jobs use highgpu NVIDIA H100 80GB HBM3. No training hyperparameters changed.",

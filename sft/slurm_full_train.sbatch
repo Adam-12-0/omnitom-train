@@ -24,6 +24,8 @@ fi
 echo "python=$(command -v python) env=${CONDA_DEFAULT_ENV:-venv}"
 DATA_DIR="${SFT_DATA_DIR:-$ROOT/data/omnitom_stage1_sft_stratified}"
 OUTPUT_DIR="${SFT_OUTPUT_DIR:-$ROOT/results/checkpoints/omnitom_stage1_sft_qwen3_14b_stratified}"
+MASK_ARGS=()
+if [[ "${ASSISTANT_ONLY_LOSS:-1}" == 1 ]]; then MASK_ARGS+=(--assistant-only-loss); fi
 if [[ ! -f "$DATA_DIR/train.jsonl" ]]; then
   python "$ROOT/sft/convert_omnitom_stage1.py" --output-dir "$DATA_DIR"
 fi
@@ -31,4 +33,5 @@ python "$ROOT/sft/train_omnitom_stage1.py" \
   --data-dir "$DATA_DIR" \
   --output-dir "$OUTPUT_DIR" \
   --per-device-batch-size "${PER_DEVICE_BATCH_SIZE:-1}" \
-  --gradient-accumulation-steps "${GRADIENT_ACCUMULATION_STEPS:-16}"
+  --gradient-accumulation-steps "${GRADIENT_ACCUMULATION_STEPS:-16}" \
+  "${MASK_ARGS[@]}"

@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+"""Held-out OmniToM Stage-1 generation and exact structured metrics."""
+from __future__ import annotations
+
+import argparse, json, re
+from pathlib import Path
+import torch
+from peft import PeftModel
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+ROOT = Path(__file__).resolve().parents[1]
+BASE = "Qwen/Qwen3-14B"
+
+def norm(s: str) -> str:
+    return " ".join(s.lower().strip().strip("`| ").split())
+
+def rows(text: str):
+    result=[]
+    for line in text.splitlines():
+        parts=[p.strip() for p in line.split("|")]
+        if len(parts)==3 and norm(parts[0]) not in {"actor", ""}:
+            result.append(tuple(norm(x) for x in parts))
+    return result
+
+def main():
+    ap=argparse.ArgumentParser()
+    ap.add_argument("--data", type=Path, default=ROOT/"data/omnitom_stage1_sft_stratified/validation.jsonl")
+    ap.add_argument("--output", type=Path, required=True)
+    ap.add_argument("--adapter", type=Path, default=None)
+    ap.add_argument("--max-new-tokens", type=int, default=4096)
+    args=ap.parse_args()
+    tok=AutoTokenizer.from_pretrained(BASE, trust_remote_code=True)
+    if tok.pad_token is None: tok.pad_token=tok.eos_token
+    model=AutoModelForCausalLM.from_pretrained(BASE, torch_dtype=torch.bfloat16, device_map="auto", trust_remote_code=True)
+    if args.adapter: model=PeftModel.from_pretrained(model, str(args.adapter))
+    model.eval(); outputs=[]; tp=fp=fn=actor_ok=order_ok=exact=0
+    for line in args.data.read_text().splitlines():
+        ex=json.loads(line); prompt=ex["messages"][:-1]; gold=ex["messages"][-1]["content"]
+        ids=tok.apply_chat_template(prompt, tokenize=True, add_generation_prompt=True, return_tensors="pt").to(model.device)
+        with torch.inference_mode(): generated=model.generate(ids, max_new_tokens=args.max_new_tokens, do_sample=False, pad_token_id=tok.eos_token_id)
+        pred=tok.decode(generated[0,ids.shape[-1]:], skip_special_tokens=True)
+        g=set(rows(gold)); p=set(rows(pred)); tp+=len(p&g); fp+=len(p-g); fn+=len(g-p)
+        exact+=int(p==g)
+        gp={(a,b) for a,b,_ in g}; pp={(a,b) for a,b,_ in p}; actor_ok+=len({a for a,_,_ in p}&{a for a,_,_ in g}); order_ok+=len(p&g)
+        outputs.append({"id":ex["id"],"prediction":pred,"gold":gold})
+    precision=tp/(tp+fp) if tp+fp else 0; recall=tp/(tp+fn) if tp+fn else 0
+    metrics={"n":len(outputs),"exact_match":exact/len(outputs),"proposition_precision":precision,"proposition_recall":recall,"proposition_f1":2*precision*recall/(precision+recall) if precision+recall else 0,"actor_exact_matches":actor_ok,"order_exact_matches":order_ok,"tp":tp,"fp":fp,"fn":fn}
+    args.output.parent.mkdir(parents=True,exist_ok=True); args.output.write_text(json.dumps({"metrics":metrics,"outputs":outputs},indent=2))
+    print(json.dumps(metrics,indent=2))
+
+if __name__=="__main__": main()
