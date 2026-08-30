@@ -13,23 +13,17 @@ set -euo pipefail
 ROOT="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 cd "$ROOT"
 export GPU_TYPE="${GPU_TYPE:-NVIDIA H100 80GB HBM3 (nvidia_h100_80gb_hbm3)}"
-if [[ -n "${VENV_PATH:-}" && -f "$VENV_PATH" ]]; then
-  source "$VENV_PATH"
-elif [[ -f "$ROOT/.venv/bin/activate" ]] && "$ROOT/.venv/bin/python" -c 'import transformers, trl' >/dev/null 2>&1; then
-  source "$ROOT/.venv/bin/activate"
-else
-  source /apps/anaconda/anaconda-2024.10/etc/profile.d/conda.sh
-  conda activate /home/ad906660/.conda/envs/tom
-fi
-echo "python=$(command -v python) env=${CONDA_DEFAULT_ENV:-venv}"
+PYTHON="$ROOT/.venv/bin/python"
+"$PYTHON" -c 'import transformers, trl, peft' >/dev/null
+echo "python=$PYTHON ($($PYTHON -c 'import sys; print(sys.prefix)'))"
 DATA_DIR="${SFT_DATA_DIR:-$ROOT/data/omnitom_stage1_sft_stratified}"
 OUTPUT_DIR="${SFT_OUTPUT_DIR:-$ROOT/results/checkpoints/omnitom_stage1_sft_qwen3_14b_stratified}"
 MASK_ARGS=()
 if [[ "${ASSISTANT_ONLY_LOSS:-1}" == 1 ]]; then MASK_ARGS+=(--assistant-only-loss); fi
 if [[ ! -f "$DATA_DIR/train.jsonl" ]]; then
-  python "$ROOT/sft/convert_omnitom_stage1.py" --output-dir "$DATA_DIR"
+  "$PYTHON" "$ROOT/sft/convert_omnitom_stage1.py" --output-dir "$DATA_DIR"
 fi
-python "$ROOT/sft/train_omnitom_stage1.py" \
+"$PYTHON" "$ROOT/sft/train_omnitom_stage1.py" \
   --data-dir "$DATA_DIR" \
   --output-dir "$OUTPUT_DIR" \
   --per-device-batch-size "${PER_DEVICE_BATCH_SIZE:-1}" \

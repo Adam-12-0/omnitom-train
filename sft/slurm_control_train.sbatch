@@ -13,9 +13,10 @@
 #SBATCH --error=logs/da_format_control_%j.err
 set -euo pipefail
 ROOT="${SLURM_SUBMIT_DIR:?}"
-source "$ROOT/.venv/bin/activate"
+PYTHON="$ROOT/.venv/bin/python"
+"$PYTHON" -c 'import transformers, trl, peft' >/dev/null
 DATA="$ROOT/data/double_agent_format_control"
-python "$ROOT/sft/convert_double_agent_format_control.py" --output-dir "$DATA"
-python "$ROOT/sft/train_omnitom_stage1.py" --data-dir "$DATA" \
+"$PYTHON" "$ROOT/sft/convert_double_agent_format_control.py" --output-dir "$DATA"
+"$PYTHON" "$ROOT/sft/train_omnitom_stage1.py" --data-dir "$DATA" \
   --output-dir "$ROOT/results/checkpoints/double_agent_json_format_control_qwen3_14b" \
   --assistant-only-loss --per-device-batch-size 1 --gradient-accumulation-steps 16

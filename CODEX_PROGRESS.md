@@ -1,5 +1,13 @@
 # Codex Progress
 
+## 2026-08-30 — Core OmniToM fine-tuning comparison queued
+
+- Added a held-out Stage-1 generation evaluator reporting exact-set match, proposition precision/recall/F1, actor accuracy conditional on matched belief/order, and order accuracy conditional on matched actor/belief.
+- Corrected all new SFT/evaluation launchers to invoke this checkout's `.venv/bin/python` directly. Its activation script contains an obsolete absolute workspace path and silently activated base Python, which caused the initial SFT/structured-eval/control jobs `787515`, `787518`, and `787519` to fail before model loading; this was not a GPU or model-memory failure.
+- Resubmitted the core jobs: stratified assistant-only OmniToM Stage-1 SFT `787522`, Base held-out structured evaluation `787523`, and the no-OmniToM Double-Agent JSON-format control SFT `787524`.
+- Queued successful-completion dependent jobs: OmniToM structured evaluation `787525`, format-control structured evaluation `787526`, OmniToM Double-Agent evaluation `787527`, and format-control Double-Agent evaluation `787528`. The Double-Agent launcher now resolves its YAML path before changing into the embedded repository.
+- The format control is deliberately trained only on a fixed Double-Agent-compatible JSON schema derived from the 300-row Double-Agent dataset; it contains no OmniToM stories, beliefs, actors, or ordering labels. This separates output-schema/behavioral drift from structured belief supervision.
+
 ## 2026-08-30 — OmniToM calibration and follow-up design
 
 - Located the adjacent `../OmniToM` workspace containing the merged 126-table human-agreement protocol (9 levels × 14 stories), prior judge outputs for GPT-5, Gemini, Claude, Llama, and DeepSeek, and the reusable Mistral-Large Stage-1 evaluator.

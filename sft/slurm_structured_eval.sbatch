@@ -14,8 +14,9 @@
 set -euo pipefail
 ROOT="${SLURM_SUBMIT_DIR:?}"
 : "${STRUCTURED_LABEL:?}"
-source "$ROOT/.venv/bin/activate"
+PYTHON="$ROOT/.venv/bin/python"
+"$PYTHON" -c 'import transformers, peft' >/dev/null
 OUT="$ROOT/results/structured_eval/${STRUCTURED_LABEL}.json"
 ARGS=(--data "$ROOT/data/omnitom_stage1_sft_stratified/validation.jsonl" --output "$OUT")
 if [[ -n "${ADAPTER_PATH:-}" ]]; then ARGS+=(--adapter "$ADAPTER_PATH"); fi
-python -u "$ROOT/sft/evaluate_stage1_structured.py" "${ARGS[@]}"
+"$PYTHON" -u "$ROOT/sft/evaluate_stage1_structured.py" "${ARGS[@]}"

@@ -33,7 +33,7 @@ def main():
     if tok.pad_token is None: tok.pad_token=tok.eos_token
     model=AutoModelForCausalLM.from_pretrained(BASE, torch_dtype=torch.bfloat16, device_map="auto", trust_remote_code=True)
     if args.adapter: model=PeftModel.from_pretrained(model, str(args.adapter))
-    model.eval(); outputs=[]; tp=fp=fn=actor_ok=order_ok=exact=0
+    model.eval(); outputs=[]; tp=fp=fn=actor_ok=actor_total=order_ok=order_total=exact=0
     for line in args.data.read_text().splitlines():
         ex=json.loads(line); prompt=ex["messages"][:-1]; gold=ex["messages"][-1]["content"]
         ids=tok.apply_chat_template(prompt, tokenize=True, add_generation_prompt=True, return_tensors="pt").to(model.device)
@@ -41,10 +41,24 @@ def main():
         pred=tok.decode(generated[0,ids.shape[-1]:], skip_special_tokens=True)
         g=set(rows(gold)); p=set(rows(pred)); tp+=len(p&g); fp+=len(p-g); fn+=len(g-p)
         exact+=int(p==g)
-        gp={(a,b) for a,b,_ in g}; pp={(a,b) for a,b,_ in p}; actor_ok+=len({a for a,_,_ in p}&{a for a,_,_ in g}); order_ok+=len(p&g)
+        # Attribute accuracy is measured conditionally on the other two fields:
+        # actor given (belief, order), and order given (actor, belief).  This
+        # prevents a proposition exact match from being reported as both scores.
+        gold_by_belief_order = {(b, o): a for a, b, o in g}
+        pred_by_belief_order = {(b, o): a for a, b, o in p}
+        for key, actor in pred_by_belief_order.items():
+            if key in gold_by_belief_order:
+                actor_total += 1
+                actor_ok += int(actor == gold_by_belief_order[key])
+        gold_by_actor_belief = {(a, b): o for a, b, o in g}
+        pred_by_actor_belief = {(a, b): o for a, b, o in p}
+        for key, order in pred_by_actor_belief.items():
+            if key in gold_by_actor_belief:
+                order_total += 1
+                order_ok += int(order == gold_by_actor_belief[key])
         outputs.append({"id":ex["id"],"prediction":pred,"gold":gold})
     precision=tp/(tp+fp) if tp+fp else 0; recall=tp/(tp+fn) if tp+fn else 0
-    metrics={"n":len(outputs),"exact_match":exact/len(outputs),"proposition_precision":precision,"proposition_recall":recall,"proposition_f1":2*precision*recall/(precision+recall) if precision+recall else 0,"actor_exact_matches":actor_ok,"order_exact_matches":order_ok,"tp":tp,"fp":fp,"fn":fn}
+    metrics={"n":len(outputs),"exact_match":exact/len(outputs),"proposition_precision":precision,"proposition_recall":recall,"proposition_f1":2*precision*recall/(precision+recall) if precision+recall else 0,"actor_accuracy":actor_ok/actor_total if actor_total else 0,"actor_comparable":actor_total,"order_accuracy":order_ok/order_total if order_total else 0,"order_comparable":order_total,"tp":tp,"fp":fp,"fn":fn}
     args.output.parent.mkdir(parents=True,exist_ok=True); args.output.write_text(json.dumps({"metrics":metrics,"outputs":outputs},indent=2))
     print(json.dumps(metrics,indent=2))
 

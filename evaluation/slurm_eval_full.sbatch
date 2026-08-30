@@ -16,6 +16,7 @@ set -euo pipefail
 ROOT="${SLURM_SUBMIT_DIR:?}"
 : "${EVAL_CONFIG:?Set EVAL_CONFIG to a defender evaluation YAML}"
 : "${EVAL_LABEL:?Set EVAL_LABEL to a stable defender result label}"
+if [[ "$EVAL_CONFIG" != /* ]]; then EVAL_CONFIG="$ROOT/$EVAL_CONFIG"; fi
 cd "$ROOT/AIDoubleAgentDefenders"
 
 source /apps/anaconda/anaconda-2024.10/etc/profile.d/conda.sh
