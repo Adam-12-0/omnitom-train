@@ -6,6 +6,7 @@
 - Submitted Mistral-Large-Instruct-2407 calibration job `787508` (12-hour GPU allocation, 126-table protocol) from the adjacent workspace. Results are not available yet.
 - The requested held-out structured metrics, assistant-only masked SFT, format-only control, Double-Agent JSON control, independent extraction judging, behavioral analysis, and multi-seed comparisons are not yet submitted; they require new scripts/configs beyond the existing trajectory evaluator.
 - Corrected the OmniToM Stage 1 split to deterministic randomization within each story category (805 train / 90 validation; no test split), preserving proportional category representation. The regenerated data and manifest are in `data/omnitom_stage1_sft_stratified`; retraining submitted as SFT job `787510` to a new checkpoint path, leaving the historical adapter unchanged.
+- SFT job `787510` failed immediately because `.venv` lacked Transformers. The launcher now activates the established `tom` environment; retry `787512` targets `omnitom_stage1_sft_qwen3_14b_stratified_v2`.
 
 ## 2026-08-28 — Full open-weight evaluations completed; GRPO reproductions launched
 
