@@ -4,7 +4,7 @@ Reproducible supervised fine-tuning experiment testing whether explicit belief m
 
 ## Research question
 
-Does supervised training on structured `(Actor, Belief, Order)` extraction improve Qwen3-14B as a Double Agent defender, and how does it compare with the original Double Agent ToM-only, fooling-only, and ToM+fooling GRPO specializations?
+Does supervised training on structured `(Actor, Belief, Order)` extraction improve Qwen3-14B as a Double Agent defender, and how does it compare with the Double Agent Online-SFT trajectory baseline and the ToM-only, fooling-only, and ToM+fooling GRPO specializations?
 
 ## What is included
 
@@ -105,7 +105,10 @@ it writes figures to `results/analysis/figures/` and does not represent pending
 training or evaluation jobs as measurements.
 
 At the latest audit, the stratified OmniToM SFT adapter and the schema-only
-Double-Agent format-control adapter had both completed. The Stage-1 base,
-OmniToM, and format-control evaluations are separate queued/running jobs; the
-OmniToM Double-Agent rollout and the full ToM-only/fooling-only GRPO runs are
-also still in progress. See `CODEX_PROGRESS.md` for job IDs and status history.
+Double-Agent format-control adapter had both completed. The format control is
+not the paper's Online-SFT baseline: that baseline must generate trajectories
+sequentially and update only on trajectories that successfully fool the
+attacker. The Stage-1 base, OmniToM, and format-control evaluations are
+separate queued/running jobs; the OmniToM Double-Agent rollout and the full
+ToM-only/fooling-only GRPO runs are also still in progress. See
+`CODEX_PROGRESS.md` for job IDs and status history.
