@@ -12,7 +12,13 @@ set -euo pipefail
 ROOT="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 cd "$ROOT"
 export GPU_TYPE="${GPU_TYPE:-NVIDIA H100 80GB HBM3 (nvidia_h100_80gb_hbm3)}"
-if [[ -n "${VENV_PATH:-}" && -f "$VENV_PATH" ]]; then source "$VENV_PATH"; elif [[ -f "$ROOT/.venv/bin/activate" ]]; then source "$ROOT/.venv/bin/activate"; fi
+if [[ -n "${VENV_PATH:-}" && -f "$VENV_PATH" ]]; then
+  source "$VENV_PATH"
+else
+  source /apps/anaconda/anaconda-2024.10/etc/profile.d/conda.sh
+  conda activate /home/ad906660/.conda/envs/tom
+fi
+echo "python=$(command -v python) env=${CONDA_DEFAULT_ENV:-venv}"
 DATA_DIR="${SFT_DATA_DIR:-$ROOT/data/omnitom_stage1_sft_stratified}"
 OUTPUT_DIR="${SFT_OUTPUT_DIR:-$ROOT/results/checkpoints/omnitom_stage1_sft_qwen3_14b_stratified}"
 if [[ ! -f "$DATA_DIR/train.jsonl" ]]; then
