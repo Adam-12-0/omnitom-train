@@ -94,3 +94,18 @@ bounded completion budgets compatible with its 8,192-token context window.
 Runtime logs, large generated evaluation trees, private data, credentials, and
 model caches remain ignored by Git; selected SFT provenance and checkpoint files
 are tracked for reproducibility.
+
+## Results dashboard
+
+Open [`results/analysis/experiment_dashboard.ipynb`](results/analysis/experiment_dashboard.ipynb)
+for the current comparison plots.  It contains the completed matched 150-trajectory
+Base-vs-OmniToM behavioral evaluation and automatically loads every completed
+held-out Stage-1 structured evaluation from `results/structured_eval/`.  Executing
+it writes figures to `results/analysis/figures/` and does not represent pending
+training or evaluation jobs as measurements.
+
+At the latest audit, the stratified OmniToM SFT adapter and the schema-only
+Double-Agent format-control adapter had both completed. The Stage-1 base,
+OmniToM, and format-control evaluations are separate queued/running jobs; the
+OmniToM Double-Agent rollout and the full ToM-only/fooling-only GRPO runs are
+also still in progress. See `CODEX_PROGRESS.md` for job IDs and status history.

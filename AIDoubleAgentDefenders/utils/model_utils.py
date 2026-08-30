@@ -83,6 +83,10 @@ def get_basemodel_loadstring(engine, handle_model_paths=True):
     # the exact OmniToM adapter without renaming its required output path.
     if engine.startswith("omnitom_stage1_sft_qwen3_14b"):
         return "Qwen/Qwen3-14B"
+    # This schema-only control is likewise a Qwen3-14B LoRA adapter. Its
+    # descriptive directory name would otherwise be parsed as base `double`.
+    if engine.startswith("double_agent_json_format_control_qwen3_14b"):
+        return "Qwen/Qwen3-14B"
     if "+" in engine:
         base_model_name = engine.split("+")[0].split("_")[0]
     else:

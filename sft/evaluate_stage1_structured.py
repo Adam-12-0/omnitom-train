@@ -36,8 +36,12 @@ def main():
     model.eval(); outputs=[]; tp=fp=fn=actor_ok=actor_total=order_ok=order_total=exact=0
     for line in args.data.read_text().splitlines():
         ex=json.loads(line); prompt=ex["messages"][:-1]; gold=ex["messages"][-1]["content"]
-        ids=tok.apply_chat_template(prompt, tokenize=True, add_generation_prompt=True, return_tensors="pt").to(model.device)
-        with torch.inference_mode(): generated=model.generate(ids, max_new_tokens=args.max_new_tokens, do_sample=False, pad_token_id=tok.eos_token_id)
+        # `apply_chat_template` returns a BatchEncoding in this Transformers
+        # version. Pass its tensor fields to generation rather than the
+        # container itself (which has no `.shape`).
+        encoded=tok.apply_chat_template(prompt, tokenize=True, add_generation_prompt=True, return_dict=True, return_tensors="pt").to(model.device)
+        ids=encoded["input_ids"]
+        with torch.inference_mode(): generated=model.generate(**encoded, max_new_tokens=args.max_new_tokens, do_sample=False, pad_token_id=tok.eos_token_id)
         pred=tok.decode(generated[0,ids.shape[-1]:], skip_special_tokens=True)
         g=set(rows(gold)); p=set(rows(pred)); tp+=len(p&g); fp+=len(p-g); fn+=len(g-p)
         exact+=int(p==g)
