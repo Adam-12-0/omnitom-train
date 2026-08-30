@@ -9,10 +9,10 @@
 # Two GPUs are required for the GRPO training forward pass: 4-bit weights fit
 # on one card, but multi-turn activations and 152k-vocabulary logits do not.
 # Transformers device_map=auto shards the local defender across both GPUs.
-#SBATCH --gres=gpu:2
+#SBATCH --gres=gpu:4
 #SBATCH --constraint=gpu80
 #SBATCH --exclude=evc101
-#SBATCH --cpus-per-task=16
+#SBATCH --cpus-per-task=32
 #SBATCH --time=3-00:00:00
 #SBATCH --output=logs/grpo_full-%j.out
 #SBATCH --error=logs/grpo_full-%j.err
