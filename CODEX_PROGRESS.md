@@ -1,5 +1,11 @@
 # Codex Progress
 
+## 2026-08-30 — OmniToM calibration and follow-up design
+
+- Located the adjacent `../OmniToM` workspace containing the merged 126-table human-agreement protocol (9 levels × 14 stories), prior judge outputs for GPT-5, Gemini, Claude, Llama, and DeepSeek, and the reusable Mistral-Large Stage-1 evaluator.
+- Submitted Mistral-Large-Instruct-2407 calibration job `787508` (12-hour GPU allocation, 126-table protocol) from the adjacent workspace. Results are not available yet.
+- The requested held-out structured metrics, assistant-only masked SFT, format-only control, Double-Agent JSON control, independent extraction judging, behavioral analysis, and multi-seed comparisons are not yet submitted; they require new scripts/configs beyond the existing trajectory evaluator.
+
 ## 2026-08-28 — Full open-weight evaluations completed; GRPO reproductions launched
 
 - Base Qwen3-14B full evaluation `780916` completed successfully: 150 trajectories, 62.67% fooling, 20.00% all-prompts fooling, 0.2067 prior-knowledge ToM trajectory mean.
