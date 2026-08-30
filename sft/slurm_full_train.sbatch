@@ -5,6 +5,7 @@
 #SBATCH --output=logs/omnitom_sft_%j.out
 #SBATCH --error=logs/omnitom_sft_%j.err
 #SBATCH --gres=gpu:1
+#SBATCH --exclude=evc101
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=160G
 #SBATCH --time=24:00:00
