@@ -1022,6 +1022,78 @@ class BaseTrainer():
 
 
 
+class OnlineSFTTrainer(BaseTrainer):
+    """Online SFT on full trajectories whose terminal outcome fools the attacker."""
+
+    def _sft_update(self, history, trajectory_id):
+        args = self.args
+        tokens = args.tokenizer.apply_chat_template(
+            history, tokenize=True, add_generation_prompt=False,
+            return_tensors="pt", enable_thinking=False,
+        ).to(args.defender.model.device)[0]
+        mask = self.compute_token_mask(
+            model=args.defender.model, tokenizer=args.tokenizer,
+            prompt_messages=None, completions_in_tokenform=[tokens],
+            loss_masking="assistant_only", debug=trajectory_id < 3,
+        )[0].to(tokens.device)
+        info = self.compute_per_token_logps_and_info(
+            args.defender.model, tokens, [mask], 0, device=tokens.device,
+            tokenizer=args.tokenizer, debug=trajectory_id < 3,
+        )
+        if not len(info["per_token_logps"]):
+            raise RuntimeError("Online SFT trajectory contained no assistant tokens")
+        loss = -info["per_token_logps"].mean()
+        loss.backward()
+        self.gradients_accumulated_count += 1
+        args.logger._log_defender_loss_to_wandb(loss.item(), split="train", step=None, trajectory_id=trajectory_id)
+        print(f"Online SFT successful trajectory loss: {loss.item():.6f}")
+        if self.gradients_accumulated_count % args.gradient_accumulation_steps == 0:
+            self._update_defender_model()
+            self.gradients_accumulated_count = 0
+
+    def run_train(self):
+        args = self.args
+        trajectory_number = 0
+        successful_count = 0
+        next_eval_idx = 1
+        for _epoch in range(args.epochs):
+            for sample in args.train_dataset:
+                args.attacker.update_attacker_state(attacker_target_information=sample["attacker_target_information"], fresh_start=True, prompt_id=args.train_prompt_id)
+                args.defender.update_defender_state(defender_private_information=sample["defender_private_information"], fresh_start=True)
+                trajectory = Trajectory(
+                    attacker=args.attacker, defender=args.defender, defender_optimizer=args.optimizer,
+                    max_turns=args.max_iterations, gradient_accumulation_steps=args.gradient_accumulation_steps,
+                    num_generations=1, reward_functions=args.reward_funcs, trajectory_id=trajectory_number,
+                    wandb_run=args.wandb_run, wandb_step_timing_counter=args.wandb_step_timing_counter,
+                    loss_type=args.loss_type, max_completion_length=args.max_completion_length,
+                    model_kwarg_keys=args.model_kwarg_keys, logger=args.logger,
+                    enable_lock_on_generate=args.enable_lock_on_generate, judge_prompt_version=args.judge_prompt_version,
+                    trajectory_level_rewards=args.trajectory_level_rewards, judge_client=args.judge_client,
+                    judge_model_name=args.judge_model_name, max_format_retries=args.max_format_retries,
+                )
+                output = trajectory.subrollout(steps=-1, num_generations_override=1, compute_core_trajectory_rewards=True, debug_prompts=trajectory_number < 3)
+                terminal = [r for r in output["core_trajectory_rewards_per_turn"] if "fooling_successful" in r]
+                fooled = bool(terminal and terminal[-1]["fooling_successful"])
+                if fooled:
+                    self._sft_update(output["defender_conversation_history"], trajectory_number)
+                    successful_count += 1
+                print(f"Online SFT trajectory {trajectory_number}: fooled={fooled}; successful_total={successful_count}", flush=True)
+                print_trajectory_like_setting_simplified_iterated(trajectory_output=output, idx=trajectory_number, label="Online SFT")
+                del trajectory
+                gc.collect()
+                torch.cuda.empty_cache()
+                trajectory_number += 1
+                args.scheduler.step()
+                if next_eval_idx <= len(args.eval_after_trajectory_counts) and trajectory_number == args.eval_after_trajectory_counts[next_eval_idx - 1]:
+                    self.run_eval(trajectory_number, next_eval_idx)
+                    args.defender.model.train()
+                    next_eval_idx += 1
+        if self.gradients_accumulated_count:
+            self._update_defender_model()
+            self.gradients_accumulated_count = 0
+        print(f"Online SFT finished: {successful_count}/{trajectory_number} successful trajectories used for SFT.")
+
+
 class TrajectorywiseGRPOTrainer(BaseTrainer):
 
     def _train_step_trajectory_level(self, reward: dict[list], defender_histories, completions_in_tokenform: list, step=None, trajectory_id=None, force_debug=False):
@@ -1247,4 +1319,3 @@ class TrajectorywiseGRPOTrainer(BaseTrainer):
                     if hasattr(args.model, 'train'):
                         args.model.train()
                     next_eval_idx += 1
-

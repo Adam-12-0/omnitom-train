@@ -1,0 +1,18 @@
+DatasetConfig:
+  dataset: "three_layered_dataset"
+  train_end_p: 0.75
+  eval_start_p: 0.75
+RunConfig:
+  eval_only: true
+  do_run_first_eval: true
+TrainingConfig:
+  loss_type: "dr_grpo"
+  training_strategy: "TrajectorywiseGRPO"
+  reward_functions: "backward_ToM_belief"
+ModelConfig:
+  engine: "double_agent_online_sft_qwen3_14b"
+  checkpoints_dir: "../results/checkpoints"
+  judge_model: "mistralai/Mistral-Large-Instruct-2407"
+  attacker_model: "meta-llama/Llama-3.3-70B-Instruct"
+  attacker_type: "verifying_attacker_swapable_prompt"
+  defender_type: "integrated_defender_with_reflection_v2"

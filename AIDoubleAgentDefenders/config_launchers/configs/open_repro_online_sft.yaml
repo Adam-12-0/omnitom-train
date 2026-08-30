@@ -1,0 +1,33 @@
+# Independent reproduction of the paper's Online-SFT baseline. A trajectory
+# is sampled sequentially and contributes an SFT update only if it fools the
+# attacker; this is deliberately not a GRPO objective.
+DatasetConfig:
+  dataset: "three_layered_dataset"
+  train_end_p: 0.75
+  eval_start_p: 0.75
+ModelConfig:
+  engine: "Qwen3-14B"
+  judge_model: "mistralai/Mistral-Large-Instruct-2407"
+  attacker_model: "meta-llama/Llama-3.3-70B-Instruct"
+  attacker_type: "verifying_attacker_swapable_prompt"
+  defender_type: "integrated_defender_with_reflection_v2"
+TrainingConfig:
+  training_strategy: "Online_SFT"
+  epochs: 1
+  max_iterations: 15
+  num_generations: 1
+  max_completion_length: 512
+  reward_functions: "fooling_successful"
+  eval_reward_functions: "backward_ToM_belief"
+  eval_trajectory_level_rewards: "prior_knowledge_ToM"
+  loss_type: "dr_grpo"
+  learning_rate: 1e-5
+  gradient_accumulation_steps: 4
+  lr_scheduler: "linear"
+  n_evals: 0
+  do_run_first_eval: false
+LoRAConfig:
+  rank: 32
+  target_modules: "all-linear"
+  alpha: 32
+  lr_warmup_ratio: 0.0

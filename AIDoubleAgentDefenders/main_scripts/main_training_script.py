@@ -14,7 +14,7 @@ from utils.dataset import load_custom_dataset
 from utils.attacker import Integrated_Attacker
 from utils.defender import Integrated_Defender
 from utils.rollout_utils import make_attacker, make_defender
-from utils.trainer import BaseTrainer, TrainerArguments, TrajectorywiseGRPOTrainer
+from utils.trainer import BaseTrainer, OnlineSFTTrainer, TrainerArguments, TrajectorywiseGRPOTrainer
 from utils.training_utils import Unified_Logger, is_gemini_model, make_fooling_reward, make_backward_ToM_reward, make_dummy_reward, make_format_rwd_reward, make_length_reward
 from utils.training_utils import make_relative_time_logger, set_global_log_fn
 
@@ -511,6 +511,8 @@ def main(args):
         raise ValueError(f"--convex_joint is only supported for TrajectorywiseGRPO, got: {args.training_strategy}")
     if args.training_strategy == "Stepwise":
         trainer = BaseTrainer(trainer_arguments)
+    elif args.training_strategy == "Online_SFT":
+        trainer = OnlineSFTTrainer(trainer_arguments)
     elif args.training_strategy == "TrajectorywiseGRPO":
         trainer = TrajectorywiseGRPOTrainer(trainer_arguments)
     else:

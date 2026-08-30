@@ -108,7 +108,9 @@ At the latest audit, the stratified OmniToM SFT adapter and the schema-only
 Double-Agent format-control adapter had both completed. The format control is
 not the paper's Online-SFT baseline: that baseline must generate trajectories
 sequentially and update only on trajectories that successfully fool the
-attacker. The Stage-1 base, OmniToM, and format-control evaluations are
+attacker. The implementation is in `utils/trainer.py` as `OnlineSFTTrainer`,
+with the reproducible launcher `evaluation/slurm_online_sft.sbatch`; its
+adapter and matched rollout evaluation are submitted separately. The Stage-1 base, OmniToM, and format-control evaluations are
 separate queued/running jobs; the OmniToM Double-Agent rollout and the full
 ToM-only/fooling-only GRPO runs are also still in progress. See
 `CODEX_PROGRESS.md` for job IDs and status history.
