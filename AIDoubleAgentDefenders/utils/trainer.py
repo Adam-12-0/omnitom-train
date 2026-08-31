@@ -1034,7 +1034,7 @@ class OnlineSFTTrainer(BaseTrainer):
         # Full 15-turn transcripts can exceed H100 memory during the
         # teacher-forced forward pass. Keep the most recent context while
         # preserving the assistant spans used for SFT.
-        max_sft_tokens = 4096
+        max_sft_tokens = 2048
         if tokens.numel() > max_sft_tokens:
             tokens = tokens[-max_sft_tokens:]
         mask = self.compute_token_mask(

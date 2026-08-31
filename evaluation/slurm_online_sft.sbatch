@@ -6,7 +6,9 @@
 #SBATCH --partition=highgpu,normal
 #SBATCH --gres=gpu:1
 #SBATCH --constraint=gpu80
-#SBATCH --exclude=evc101
+# Avoid colocating with the multi-GPU GRPO allocations; Online SFT needs the
+# full memory of a single H100 for its teacher-forced forward pass.
+#SBATCH --exclude=evc101,evc104
 #SBATCH --cpus-per-task=8
 #SBATCH --time=3-00:00:00
 #SBATCH --output=logs/online_sft-%j.out
@@ -21,6 +23,7 @@ export WANDB_MODE=offline WANDB_PROJECT=omnitom-online-sft
 export SHELLS_LAUNCHER_LOG_NAME="online_sft_${SLURM_JOB_ID}"
 export AZURE_OPENAI_ENDPOINT="${AZURE_OPENAI_ENDPOINT:-unused}"
 export TOKENIZERS_PARALLELISM=false
+export PYTORCH_ALLOC_CONF="${PYTORCH_ALLOC_CONF:-expandable_segments:True}"
 : "${ATTACKER_JOB_ID:?}" "${JUDGE_JOB_ID:?}"
 for attempt in $(seq 1 720); do
   ATTACKER_ENDPOINT="http://$(squeue -h -j "$ATTACKER_JOB_ID" -o '%N'):8001/v1"
