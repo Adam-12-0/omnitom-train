@@ -80,7 +80,7 @@ python -u -m main_scripts.main_training_script \
   --results_dir "$RESULTS_DIR" \
   --eval_only --do_run_first_eval 1 --n_evals 1 \
   --eval_batch_size 1 --eval_num_workers 1 \
-  --max_iterations 15 --max_completion_length 20000 \
+  --max_iterations 15 --max_completion_length "${EVAL_MAX_COMPLETION_LENGTH:-4096}" \
   --temperature 0.7 \
   --attacker_endpoint "$ATTACKER_ENDPOINT" \
   --judge_endpoint "$JUDGE_ENDPOINT" \
