@@ -39,9 +39,11 @@ def main():
         # `apply_chat_template` returns a BatchEncoding in this Transformers
         # version. Pass its tensor fields to generation rather than the
         # container itself (which has no `.shape`).
-        encoded=tok.apply_chat_template(prompt, tokenize=True, add_generation_prompt=True, return_dict=True, return_tensors="pt").to(model.device)
+        encoded=tok.apply_chat_template(prompt, tokenize=True, add_generation_prompt=True,
+                                         return_dict=True, return_tensors="pt",
+                                         enable_thinking=False).to(model.device)
         ids=encoded["input_ids"]
-        with torch.inference_mode(): generated=model.generate(**encoded, max_new_tokens=args.max_new_tokens, do_sample=False, pad_token_id=tok.eos_token_id)
+        with torch.inference_mode(): generated=model.generate(**encoded, max_new_tokens=min(args.max_new_tokens, 1024), do_sample=False, pad_token_id=tok.eos_token_id)
         pred=tok.decode(generated[0,ids.shape[-1]:], skip_special_tokens=True)
         g=set(rows(gold)); p=set(rows(pred)); tp+=len(p&g); fp+=len(p-g); fn+=len(g-p)
         exact+=int(p==g)
@@ -61,6 +63,8 @@ def main():
                 order_total += 1
                 order_ok += int(order == gold_by_actor_belief[key])
         outputs.append({"id":ex["id"],"prediction":pred,"gold":gold})
+        if len(outputs) % 5 == 0:
+            print(f"processed {len(outputs)}/{len(args.data.read_text().splitlines())}", flush=True)
     precision=tp/(tp+fp) if tp+fp else 0; recall=tp/(tp+fn) if tp+fn else 0
     metrics={"n":len(outputs),"exact_match":exact/len(outputs),"proposition_precision":precision,"proposition_recall":recall,"proposition_f1":2*precision*recall/(precision+recall) if precision+recall else 0,"actor_accuracy":actor_ok/actor_total if actor_total else 0,"actor_comparable":actor_total,"order_accuracy":order_ok/order_total if order_total else 0,"order_comparable":order_total,"tp":tp,"fp":fp,"fn":fn}
     args.output.parent.mkdir(parents=True,exist_ok=True); args.output.write_text(json.dumps({"metrics":metrics,"outputs":outputs},indent=2))

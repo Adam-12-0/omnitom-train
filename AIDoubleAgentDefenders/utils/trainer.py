@@ -1031,6 +1031,12 @@ class OnlineSFTTrainer(BaseTrainer):
             history, tokenize=True, add_generation_prompt=False,
             return_tensors="pt", enable_thinking=False,
         ).to(args.defender.model.device)[0]
+        # Full 15-turn transcripts can exceed H100 memory during the
+        # teacher-forced forward pass. Keep the most recent context while
+        # preserving the assistant spans used for SFT.
+        max_sft_tokens = 4096
+        if tokens.numel() > max_sft_tokens:
+            tokens = tokens[-max_sft_tokens:]
         mask = self.compute_token_mask(
             model=args.defender.model, tokenizer=args.tokenizer,
             prompt_messages=None, completions_in_tokenform=[tokens],
